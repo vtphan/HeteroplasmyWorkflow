@@ -1,0 +1,8 @@
+[config]
+READS_DIR = /home/jmandel/programs/sra_toolkit/
+REF_DIR = /home/dpham2/carrot/Reference/daucus_carota_cp.fasta
+ANNOTATION = /home/dpham2/carrot/Annotations/Cpgenome_annotationsDQ898156.csv
+LOG_FILE = /home/dpham2/carrot/log_run_hpc.txt
+OUTPUT_DIR = /home/dpham2/carrot/CPoutput_testHPC2
+DIST = hellinger
+
