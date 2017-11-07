@@ -6,15 +6,31 @@ REQUIREMENTS:
 - Bokeh
 - Flexx
 
-You can use Anaconda distribution (https://www.anaconda.com/download) for easier installation.
+2. Other tools:
+- Bwa (http://bio-bwa.sourceforge.net/)
+- Samtools (http://samtools.sourceforge.net/)
+
+
+You can use Anaconda distribution for easier installation.
+- Download the appropriate .sh file from https://www.anaconda.com/download/
+- In the directory with the .sh file, run the .sh file using the following commands:
+	+ Make executable if needed: chmod 755 SampleFileName.sh
+	+ Run installer script: ./SAMPLEFILENAME.sh
+
 Install required packaged using Anaconda:
 - Biopython : conda install -c anaconda biopython
 - Bokeh : conda install -c bokeh bokeh
 - Flexx : conda install -c bokeh flexx
 
-2. Other tools:
-- Bwa (http://bio-bwa.sourceforge.net/)
-- Samtools (http://samtools.sourceforge.net/)
+Install BWA, Samtools via Anaconda:
+- Set the proper channels to install bioconda:
+conda config --add channels defaults
+conda config --add channels conda-forge
+conda config --add channels bioconda
+- Install BWA, Samtools and Bzip2
+conda install bwa
+conda install samtools
+conda install bzip2
 
 
 CONFIGURATION: 
@@ -36,7 +52,7 @@ Text file contains all input reads ID you want to run. Each line is reserved for
 
 HOW TO RUN:
 
-python workflow.py config.txt readids.txt
+python run_hpc.py config.txt readids.txt
 
 - config.txt: configuration file
 - readids.txt: read IDs file.
