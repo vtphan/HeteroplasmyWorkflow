@@ -3,8 +3,26 @@ import os
 import sys
 import datetime
 from configparser import ConfigParser
-from utils import *
 
+def check_exist(cmd, thing):
+    try:
+        subprocess.check_output('%s %s' % (cmd, thing), shell=True)
+    except subprocess.CalledProcessError:
+        print("Error: did not find %s in path." % thing)
+        sys.exit(0)
+
+def log_error(cmd, exec_output, exec_error):
+        with open(LOG_FILE, 'a') as f:
+                f.write('time: %s\ncmd: %s\noutput: %s\nexec error:%s\n' % (str(datetime.datetime.now()), cmd, exec_output, exec_error))
+                
+def log_final(no_error, argv):
+    log_output = os.path.join(SCRIPT_DIR, 'log_align_analyze_sort.txt')
+    with open(log_output, 'a') as f:
+        f.write('%s %s %s %s\n' % (no_error, argv[0], argv[1], str(datetime.datetime.now())))
+
+if len(sys.argv) != 3:
+    print('Usage: python', sys.argv[0], 'config_file.txt','read_file.txt')
+    sys.exit(0)
 
 if len(sys.argv) != 3:
     print('Usage: python', sys.argv[0], 'config_file.txt','read_file.txt')
