@@ -37,7 +37,7 @@ config.readfp(open(sys.argv[1]))
 READS_DIR = config.get('config', 'READS_DIR')
 LOG_FILE = config.get('config', 'LOG_FILE')
 
-ref = config.get('config', 'REF_DIR')
+ref = config.get('config', 'REF')
 OUTPUT_DIR = config.get('config', 'OUTPUT_DIR')
 
 #--------------------------------------------------------------

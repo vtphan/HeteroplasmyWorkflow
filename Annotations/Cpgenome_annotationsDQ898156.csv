@@ -1,0 +1,161 @@
+Name,Type,Minimum,Maximum,Length,# Intervals,Direction
+16S rRNA,rRNA,"101,048","102,537","1,490",1,forward
+16S rRNA,rRNA,"137,616","139,105","1,490",1,reverse
+23S rRNA,rRNA,"104,938","107,743","2,806",1,forward
+23S rRNA,rRNA,"132,411","135,216","2,806",1,reverse
+4.5S rRNA,rRNA,"107,842","107,944",103,1,forward
+4.5S rRNA,rRNA,"132,210","132,312",103,1,reverse
+5S rRNA,rRNA,"108,170","108,290",121,1,forward
+5S rRNA,rRNA,"131,864","131,984",121,1,reverse
+accD ,gene,"57,603","59,078","1,476",1,forward
+atpA ,gene,"10,126","11,649","1,524",1,reverse
+atpB ,gene,"53,326","54,822","1,497",1,reverse
+atpE ,gene,"52,928","53,329",402,1,reverse
+atpF exon 1,gene,"12,838","12,981",144,1,reverse
+atpF exon 2,gene,"11,703","12,104",402,1,reverse
+atpH ,gene,"13,360","13,605",246,1,reverse
+atpI ,gene,"14,348","15,091",744,1,reverse
+ccsA ,gene,"115,626","116,600",975,1,forward
+cemA ,gene,"61,299","61,988",690,1,forward
+clpP exon 1,gene,"72,059","72,129",71,1,reverse
+clpP exon 2,gene,"70,917","71,208",292,1,reverse
+clpP exon 3,gene,"70,058","70,288",231,1,reverse
+DcMP1,mt2pt,"99,297","99,363",67,1,forward
+DcMP2,mt2pt,"99,364","99,435",72,1,forward
+DcMP3,mt2pt,"99,436","100,748","1,313",1,forward
+infA ,gene,"79,935","80,168",234,1,reverse
+IRA,repeat_region,"128,861","155,911","27,051",1,reverse
+IRB,repeat_region,"84,243","111,293","27,051",1,forward
+matK ,gene,"1,794","3,332","1,539",1,reverse
+ndhA exon 1,gene,"122,571","123,122",552,1,reverse
+ndhA exon 2,gene,"120,935","121,474",540,1,reverse
+ndhB exon 1,gene,"95,419","96,195",777,1,reverse
+ndhB exon 1,gene,"143,959","144,735",777,1,forward
+ndhB exon 2,gene,"93,981","94,736",756,1,reverse
+ndhB exon 2,gene,"145,418","146,173",756,1,forward
+ndhC ,gene,"50,494","50,856",363,1,reverse
+ndhD ,gene,"116,816","118,318","1,503",1,reverse
+ndhE ,gene,"118,940","119,245",306,1,reverse
+ndhF ,gene,"111,293","113,518","2,226",1,reverse
+ndhG ,gene,"119,463","119,993",531,1,reverse
+ndhH ,gene,"123,124","124,305","1,182",1,reverse
+ndhI ,gene,"120,347","120,841",495,1,reverse
+ndhJ ,gene,"49,177","49,653",477,1,reverse
+ndhK ,gene,"49,763","50,614",852,1,reverse
+petA ,gene,"62,240","63,202",963,1,forward
+petB exon 1,gene,"75,082","75,087",6,1,forward
+petB exon 2,gene,"75,838","76,479",642,1,forward
+petD exon 1,gene,"76,655","76,662",8,1,forward
+petD exon 2,gene,"77,436","77,910",475,1,forward
+petG ,gene,"66,264","66,377",114,1,forward
+petL ,gene,"66,016","66,111",96,1,forward
+petN ,gene,"28,664","28,753",90,1,forward
+psaA ,gene,"39,843","42,095","2,253",1,reverse
+psaB ,gene,"37,613","39,817","2,205",1,reverse
+psaC ,gene,"118,434","118,679",246,1,reverse
+psaI ,gene,"59,520","59,630",111,1,forward
+psaJ ,gene,"67,169","67,297",129,1,forward
+psbA ,gene,263,"1,324","1,062",1,reverse
+psbB ,gene,"72,588","74,114","1,527",1,forward
+psbC ,gene,"34,112","35,533","1,422",1,forward
+psbD ,gene,"33,103","34,164","1,062",1,forward
+psbE ,gene,"64,694","64,945",252,1,reverse
+psbF ,gene,"64,564","64,683",120,1,reverse
+psbH ,gene,"74,724","74,945",222,1,forward
+psbI ,gene,"8,179","8,289",111,1,forward
+psbJ ,gene,"64,170","64,292",123,1,reverse
+psbK ,gene,"7,581","7,766",186,1,forward
+psbL ,gene,"64,425","64,541",117,1,reverse
+psbM ,gene,"29,881","29,997",117,1,reverse
+psbN ,gene,"74,490","74,621",132,1,reverse
+psbT ,gene,"74,321","74,422",102,1,forward
+psbZ ,gene,"36,208","36,396",189,1,forward
+rbcL ,gene,"55,593","57,020","1,428",1,forward
+rpl14 ,gene,"80,897","81,265",369,1,reverse
+rpl16 exon 1,gene,"82,687","82,695",9,1,reverse
+rpl16 exon 2,gene,"81,372","81,770",399,1,reverse
+rpl2 exon 1,genecopyinmt,"85,473","85,862",390,1,reverse
+rpl2 exon 1,genecopyinmt,"154,292","154,681",390,1,forward
+rpl2 exon 2,genecopyinmt,"84,387","84,821",435,1,reverse
+rpl2 exon 2,genecopyinmt,"155,333","155,767",435,1,forward
+rpl20 ,gene,"68,605","68,991",387,1,reverse
+rpl22 ,gene,"83,484","83,981",498,1,reverse
+rpl23 ,gene,"85,881","86,162",282,1,reverse
+rpl23 ,gene,"153,992","154,273",282,1,forward
+rpl32 ,gene,"114,605","114,772",168,1,forward
+rpl33 ,gene,"67,735","67,935",201,1,forward
+rpl36 ,gene,"79,705","79,818",114,1,reverse
+rpoA ,gene,"78,048","79,109","1,062",1,reverse
+rpoB ,gene,"23,479","26,691","3,213",1,reverse
+rpoC1 exon 1,gene,"23,021","23,473",453,1,reverse
+rpoC1 exon 2,gene,"20,677","22,278","1,602",1,reverse
+rpoC2 ,gene,"16,291","20,463","4,173",1,reverse
+rps11 ,gene,"79,177","79,593",417,1,reverse
+rps12 exon 1,gene,"97,579","97,810",232,1,reverse
+rps12 exon 1,gene,"142,344","142,575",232,1,forward
+rps12 exon 2,gene,"97,017","97,042",26,1,reverse
+rps12 exon 2,gene,"143,112","143,137",26,1,forward
+rps14 ,gene,"37,181","37,483",303,1,reverse
+rps15 ,gene,"124,397","124,669",273,1,reverse
+rps16 exon 1,gene,"5,896","5,935",40,1,reverse
+rps16 exon 2,gene,"4,824","5,020",197,1,reverse
+rps18 ,gene,"68,097","68,402",306,1,forward
+rps19 ,gene,"84,046","84,324",279,1,reverse
+rps19 gene,gene,"155,830","155,910",81,1,forward
+rps2 ,gene,"15,371","16,081",711,1,reverse
+rps3 ,gene,"82,843","83,499",657,1,reverse
+rps4 ,gene,"45,962","46,567",606,1,reverse
+rps7 ,gene,"96,494","96,961",468,1,reverse
+rps7 ,gene,"143,193","143,660",468,1,forward
+rps8 ,gene,"80,290","80,694",405,1,reverse
+trnA-UGC,tRNA,"135,347","135,381",35,1,reverse
+trnA-UGC,tRNA,"136,196","136,233",38,1,reverse
+trnC-GCA ,tRNA,"27,907","27,987",81,1,forward
+trnD-GUC ,tRNA,"30,611","30,684",74,1,reverse
+trnE-UUC ,tRNA,"30,958","31,030",73,1,reverse
+trnF-GAA ,tRNA,"48,710","48,782",73,1,forward
+trnfM-CAU ,tRNA,"36,942","37,014",73,1,reverse
+trnG-GCC ,tRNA,"9,027","9,049",23,1,forward
+trnG-GCC ,tRNA,"9,762","9,798",37,1,forward
+trnG-GCC ,tRNA,"36,691","36,761",71,1,forward
+trnH-GUG ,tRNA,3,77,75,1,reverse
+trnI-CAU ,tRNA,"86,328","86,401",74,1,reverse
+trnI-CAU ,tRNA,"153,753","153,826",74,1,forward
+trnI-GAU ,tRNA,"102,833","102,874",42,1,forward
+trnI-GAU ,tRNA,"103,822","103,856",35,1,forward
+trnI-GAU ,tRNA,"136,298","136,332",35,1,reverse
+trnI-GAU ,tRNA,"137,280","137,321",42,1,reverse
+trnK-UUU ,tRNA,"1,538","1,572",35,1,reverse
+trnK-UUU ,tRNA,"4,051","4,087",37,1,reverse
+trnL-CAA ,tRNA,"93,324","93,404",81,1,reverse
+trnL-CAA ,tRNA,"146,750","146,830",81,1,forward
+trnL-UAA ,tRNA,"47,789","47,825",37,1,forward
+trnL-UAA ,tRNA,"48,326","48,375",50,1,forward
+trnL-UAG ,tRNA,"115,442","115,521",80,1,forward
+trnM-CAU ,tRNA,"52,733","52,804",72,1,forward
+trnN-GUU ,tRNA,"109,200","109,271",72,1,reverse
+trnN-GUU ,tRNA,"130,883","130,954",72,1,forward
+trnP-UGG ,tRNA,"66,711","66,784",74,1,reverse
+trnQ-UUG ,tRNA,"7,166","7,237",72,1,reverse
+trnR-ACG ,tRNA,"108,547","108,620",74,1,forward
+trnR-ACG ,tRNA,"131,534","131,607",74,1,reverse
+trnR-UCU ,tRNA,"9,930","10,001",72,1,forward
+trnS-GCU ,tRNA,"8,429","8,516",88,1,reverse
+trnS-GGA ,tRNA,"45,689","45,775",87,1,forward
+trnS-UGA ,tRNA,"35,770","35,862",93,1,reverse
+trnT-GGU ,tRNA,"31,630","31,701",72,1,forward
+trnT-UGU ,tRNA,"46,950","47,022",73,1,reverse
+trnV-GAC ,tRNA,"100,749","100,820",72,1,forward
+trnV-GAC ,tRNA,"139,334","139,405",72,1,reverse
+trnV-UAC ,tRNA,"51,917","51,953",37,1,reverse
+trnV-UAC ,tRNA,"52,519","52,557",39,1,reverse
+trnW-CCA ,tRNA,"66,507","66,580",74,1,reverse
+trnY-GUA ,tRNA,"30,797","30,880",84,1,reverse
+ycf1 ,gene,"125,058","130,538","5,481",1,reverse
+ycf1 gene,gene,"109,616","111,291","1,676",1,forward
+ycf2 ,gene,"86,490","92,765","6,276",1,forward
+ycf2 ,gene,"147,389","153,664","6,276",1,reverse
+ycf3 exon 1,gene,"44,686","44,811",126,1,reverse
+ycf3 exon 2,gene,"43,739","43,966",228,1,reverse
+ycf3 exon 3,gene,"42,803","42,955",153,1,reverse
+ycf4 ,gene,"60,053","60,607",555,1,forward

@@ -30,7 +30,7 @@ if len(sys.argv) != 3:
 config = ConfigParser()
 config.readfp(open(sys.argv[1]))
 
-ref = config.get('config', 'REF_DIR')
+ref = config.get('config', 'REF')
 annotation = config.get('config', 'ANNOTATION')
 dist = config.get('config', 'DIST')
 
@@ -97,7 +97,7 @@ with open(bash_file, 'w') as bf:
     bf.write('python hpc_align.py '+sys.argv[1]+' readids${PBS_ARRAYID}.txt \n')
 
 check_exist('ls', bash_file)
-print('Processing reads...')
+print('\nAlign reads...')
 cmd = 'qsub '+bash_file
 
 try:
