@@ -49,13 +49,13 @@ You need to specify paths to your data in a configuration file. See config.txt f
 
 ##### config.txt:
 - READS_DIR: path to reads directory.
-- REF_DIR: path to reference genomes directory.
+- REF: path to reference genomes.
 - ANNOTATION: path to Annotation file.
 - LOG_FILE: path to log file.
 - OUTPUT_DIR: path to output directory.
 - DIST: name of distance function used to compute conservation scores of heteroplasmic sites (hellinger or consine).
 
-It is not neccessary to use single or double quote for these paths.
+It is not neccessary to use single or double quote for these paths. The workflow will generate the OUTPUT_DIR if it doesn't exists.
 
 ##### Readids.txt:
 Text file contains all input reads ID you want to run. Each line is reserved for only one ID.

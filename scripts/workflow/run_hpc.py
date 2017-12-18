@@ -28,11 +28,16 @@ if len(sys.argv) != 3:
 # read config file
 #--------------------------------------------------------------
 config = ConfigParser()
+config.readfp(open('defaults.ini'))
+default_dist = config.get('defaults', 'DIST')
 config.readfp(open(sys.argv[1]))
 
 ref = config.get('config', 'REF')
 annotation = config.get('config', 'ANNOTATION')
-dist = config.get('config', 'DIST')
+try:
+    dist = config.get('config', 'DIST')
+except:
+    dist = default_dist
 
 READS_DIR = config.get('config', 'READS_DIR')
 OUTPUT_DIR = config.get('config', 'OUTPUT_DIR')
