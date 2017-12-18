@@ -2,6 +2,7 @@ import subprocess
 import os
 import sys
 import datetime
+import random
 from configparser import ConfigParser
 
 def check_exist(cmd, thing):
@@ -102,13 +103,16 @@ output = 'None'
 no_error = True
 
 # make bash file
-bash_file = os.path.join(SCRIPT_DIR, 'heteroplamy_submit.sh')
+random_id = random.randint(1,999999)
+job_name = 'HTPLASMY_JOB'+str(random_id)
+fname = 'heteroplamy_submit'+str(random_id)+'.sh'
+bash_file = os.path.join(SCRIPT_DIR, fname)
 with open(bash_file, 'w') as bf:
     bf.write('#!/bin/sh \n')
     bf.write('#PBS -l nodes=1:default:ppn=1 \n')
     bf.write('#PBS -l walltime=72:00:00 \n')
     # bf.write('#PBS -A COMP')
-    bf.write('#PBS -N HTPLASMY_JOB')                             
+    bf.write('#PBS -N '+job_name)                             
     bf.write('#PBS -t 0-'+str(n_reads-1)+' \n')
     bf.write('cd '+SCRIPT_DIR+' \n')
     bf.write('python hpc_align.py '+sys.argv[1]+' readids${PBS_ARRAYID}.txt \n')
@@ -125,7 +129,7 @@ except:
 
 check = True
 while check:
-    cmd = 'qstat | grep "HTPLASMY_JOB"'
+    cmd = 'qstat | grep "JOB'+str(random_id)+'"'
     output = subprocess.check_output(cmd, shell=True)
     if output:
         parts = output.split()
