@@ -51,6 +51,20 @@ n_reads = len(reads)
 
 SCRIPT_DIR = os.getcwd()
 print("HETEROPLASMY")
+
+###########################################################
+# check if OUTPUT_DIR exists
+###########################################################
+if not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR)
+else:
+    ans = input("\nOutput directory exists!!! Overwrite? (Y to continue, N to exit): ")
+    if ans in ['n','N','No','no']:
+        print("\nOutput exists! Please change the OUTPUT_DIR in config file and re-run the program.")
+        exit()
+    else:
+        print("\nOverwrite OUTPUT_DIR.")
+
 ###########################################################
 # 01_bwa
 ###########################################################
@@ -83,8 +97,6 @@ for i in range(0, n_reads):
         rf.write(reads[i])
 
 check_exist('ls', ref)
-if not os.path.exists(OUTPUT_DIR):
-    os.makedirs(OUTPUT_DIR)
 
 output = 'None'
 no_error = True
