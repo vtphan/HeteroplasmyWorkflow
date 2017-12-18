@@ -53,7 +53,7 @@ You need to specify paths to your data in a configuration file. See config.txt f
 - ANNOTATION: path to Annotation file.
 - LOG_FILE: path to log file.
 - OUTPUT_DIR: path to output directory.
-- DIST: name of distance function used to compute conservation scores of heteroplasmic sites (hellinger or consine).
+- DIST: name of distance function used to compute conservation scores of heteroplasmic sites (hellinger or consine). This one is optional, default is hellinger distance.
 
 It is not neccessary to use single or double quote for these paths. The workflow will generate the OUTPUT_DIR if it doesn't exists.
 
