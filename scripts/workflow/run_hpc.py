@@ -62,7 +62,7 @@ if not os.path.exists(OUTPUT_DIR):
 else:
     ans = input("\nOutput directory exists!!! Overwrite? (Y to continue, N to exit): ")
     if ans in ['n','N','No','no']:
-        print("\nOutput exists! Please change the OUTPUT_DIR in config file and re-run the program.")
+        print("\nOutput exists! Please change the OUTPUT_DIR in config file and re-run the program.\n")
         exit()
     else:
         cmd = 'rm -rf '+OUTPUT_DIR
@@ -72,7 +72,7 @@ else:
             no_error = False
             log_error(cmd, output, sys.exc_info())
         os.makedirs(OUTPUT_DIR)
-        print("\nOverwrite OUTPUT_DIR.")
+        print("\nOverwrite OUTPUT_DIR.\n")
 
 ###########################################################
 # 01_bwa
@@ -98,9 +98,10 @@ else:
 # 02_alignment
 # 02_filter_by_samtools
 ###########################################################
+random_id = random.randint(1,999999)
 # split read id to separated files
 for i in range(0, n_reads):
-    read_file = os.path.join(SCRIPT_DIR, 'readids'+str(i)+'.txt')
+    read_file = os.path.join(SCRIPT_DIR, 'readids'+str(i)+'_'+str(random_id)+'.txt')
     with open(read_file,'w') as rf:
         rf.write(reads[i])
 
@@ -110,7 +111,6 @@ output = 'None'
 no_error = True
 
 # make bash file
-random_id = random.randint(1,999999)
 job_name = 'HTPLASMY_JOB'+str(random_id)
 fname = 'heteroplamy_submit'+str(random_id)+'.sh'
 bash_file = os.path.join(SCRIPT_DIR, fname)
