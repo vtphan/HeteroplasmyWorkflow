@@ -36,9 +36,9 @@ config.readfp(open(sys.argv[1]))
 ref = config.get('config', 'REF')
 annotation = config.get('config', 'ANNOTATION')
 try:
-	dist = config.get('config', 'DIST')
+    dist = config.get('config', 'DIST')
 except:
-	dist = default_dist
+    dist = default_dist
 
 READS_DIR = config.get('config', 'READS_DIR')
 OUTPUT_DIR = config.get('config', 'OUTPUT_DIR')
@@ -53,7 +53,6 @@ n_reads = len(reads)
 SCRIPT_DIR = os.getcwd()
 print("HETEROPLASMY")
 
-output = 'None'
 ###########################################################
 # check if OUTPUT_DIR exists
 ###########################################################
@@ -80,10 +79,11 @@ else:
 check_exist('which', 'bwa')
 check_exist('which', 'samtools')
 
+output = 'None'
 if os.path.exists(ref + '.bwt'):
-    print('\nIndex exists. Skip indexing by bwa.')
+    print('Index exists. Skip indexing by bwa.')
 else:
-    print('\nIndex', ref)
+    print('Index', ref)
     cmd = 'bwa index %s' % ref
     with open(LOG_FILE, 'a') as f:
         f.write('%s\n%s\n' % (str(datetime.datetime.now()), cmd))
@@ -98,52 +98,36 @@ else:
 # 02_alignment
 # 02_filter_by_samtools
 ###########################################################
-# split read id to separated files
-for i in range(0, n_reads):
-    read_file = os.path.join(SCRIPT_DIR, 'readids'+str(i)+'.txt')
-    with open(read_file,'w') as rf:
-        rf.write(reads[i])
+for line in reads:
+    read1 = os.path.join(READS_DIR, line.strip() + '_1.fastq')
+    read2 = os.path.join(READS_DIR, line.strip() + '_2.fastq')
+    check_exist('ls', read1)
+    check_exist('ls', read2)
+    
+    name = read1.split('/')[-1].split('_R1')[0]
+    out_sam = os.path.join(OUTPUT_DIR, name+'.sam')
+    out_filtered_sam = os.path.join(OUTPUT_DIR, name+'_f2_q20.sam')
+      
 
-check_exist('ls', ref)
+    # 02_alignment      
+    cmd = 'bwa mem %s %s %s' % (ref,read1,read2)
+    try:
+        output = subprocess.check_call(cmd, shell=True, stdout=open(out_sam, 'w'))
+    except:
+        no_error = False
+        log_error(cmd, output, sys.exc_info())
 
-output = 'None'
-no_error = True
+    # 02_filter_by_samtools
+    print("Filter bwa's output")
+    cmd = 'samtools view -f 2 -q 20 %s' % out_sam
+    try:
+        ouptut = subprocess.check_call(cmd, shell=True, stdout=open(out_filtered_sam, 'w'))
+    except:
+        no_error = False
+        log_error(cmd, output, sys.exc_info())
 
-# make bash file
-random_id = random.randint(1,999999)
-job_name = 'HTPLASMY_JOB'+str(random_id)
-fname = 'heteroplamy_submit'+str(random_id)+'.sh'
-bash_file = os.path.join(SCRIPT_DIR, fname)
-with open(bash_file, 'w') as bf:
-    bf.write('#!/bin/sh \n')
-    bf.write('#PBS -l nodes=1:default:ppn=1 \n')
-    bf.write('#PBS -l walltime=72:00:00 \n')
-    # bf.write('#PBS -A COMP')
-    bf.write('#PBS -N '+job_name)                             
-    bf.write('#PBS -t 0-'+str(n_reads-1)+' \n')
-    bf.write('cd '+SCRIPT_DIR+' \n')
-    bf.write('python hpc_align.py '+sys.argv[1]+' readids${PBS_ARRAYID}.txt \n')
-
-check_exist('ls', bash_file)
-print('\nAlign reads...')
-cmd = 'qsub '+bash_file
-
-try:
-    output = subprocess.check_call(cmd, shell=True)
-except:
-    no_error = False
-    log_error(cmd, output, sys.exc_info())
-
-check = True
-while check:
-    cmd = 'qstat | grep "JOB'+str(random_id)+'"'
-    output = subprocess.check_output(cmd, shell=True)
-    if output:
-        parts = output.split()
-        if b'C' in parts[-2]:
-            check = False
-    else:
-        check = False
+    
+    print ("Finished %s. " %(line))
    
 ###########################################################
 # 03_compute_heteroplasmy likelihood
@@ -170,7 +154,6 @@ for line in read_file:
 
     output = 'None'
 
-    # 03_compute heteroplasmy likelihood
     print("\nCalculate heteroplasmy scores")
     cmd = 'python %s %s %s %s' % (heteroplasmy_likelihood,ref,out_filtered_sam,annotation)
     print(cmd)
