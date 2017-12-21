@@ -122,7 +122,7 @@ with open(bash_file, 'w') as bf:
     bf.write('#PBS -N '+job_name)                             
     bf.write('#PBS -t 0-'+str(n_reads-1)+' \n')
     bf.write('cd '+SCRIPT_DIR+' \n')
-    bf.write('python hpc_align.py '+sys.argv[1]+' readids${PBS_ARRAYID}.txt \n')
+    bf.write('python hpc_align.py '+sys.argv[1]+' readids${PBS_ARRAYID}_'+str(random_id)+'.txt \n')
 
 check_exist('ls', bash_file)
 print('\nAlign reads...')
