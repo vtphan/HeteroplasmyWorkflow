@@ -99,9 +99,11 @@ else:
 # 02_filter_by_samtools
 ###########################################################
 random_id = random.randint(1,999999)
+split_read_dir = os.path.join(OUTPUT_DIR,"out/")
+os.makedirs(split_read_dir)
 # split read id to separated files
 for i in range(0, n_reads):
-    read_file = os.path.join(SCRIPT_DIR, 'readids'+str(i)+'_'+str(random_id)+'.txt')
+    read_file = os.path.join(split_read_dir, 'readids'+str(i)+'_'+str(random_id)+'.txt')
     with open(read_file,'w') as rf:
         rf.write(reads[i])
 
@@ -112,7 +114,7 @@ no_error = True
 
 # make bash file
 job_name = 'HTPLASMY_JOB'+str(random_id)
-fname = 'heteroplamy_submit'+str(random_id)+'.sh'
+fname = 'heteroplasmy_align'+str(random_id)+'.sh'
 bash_file = os.path.join(SCRIPT_DIR, fname)
 with open(bash_file, 'w') as bf:
     bf.write('#!/bin/sh \n')
@@ -122,7 +124,7 @@ with open(bash_file, 'w') as bf:
     bf.write('#PBS -N '+job_name)                             
     bf.write('#PBS -t 0-'+str(n_reads-1)+' \n')
     bf.write('cd '+SCRIPT_DIR+' \n')
-    bf.write('python hpc_align.py '+sys.argv[1]+' readids${PBS_ARRAYID}_'+str(random_id)+'.txt \n')
+    bf.write('python hpc_align.py '+sys.argv[1]+' '+split_read_dir+'readids${PBS_ARRAYID}_'+str(random_id)+'.txt \n')
 
 check_exist('ls', bash_file)
 print('\nAlign reads...')
@@ -160,38 +162,85 @@ csv_dir = os.path.join(OUTPUT_DIR, "csv")
 if not os.path.exists(csv_dir):
     os.makedirs(csv_dir)
 
-for line in read_file:
-    read1 = os.path.join(READS_DIR, line.strip() + '_1.fastq')
-    read2 = os.path.join(READS_DIR, line.strip() + '_2.fastq')
-    name = read1.split('/')[-1].split('_R1')[0]
-    out_csv = os.path.join(csv_dir, name+'_f2_q20.csv')
-    out_filtered_sam = os.path.join(OUTPUT_DIR, name+'_f2_q20.sam')
-    no_error = True
+# make bash file
+job_name = 'HTPLASMY_SCR'+str(random_id)
+fname = 'heteroplasmy_score'+str(random_id)+'.sh'
+bash_score = os.path.join(SCRIPT_DIR, fname)
+with open(bash_score, 'w') as bf:
+    bf.write('#!/bin/sh \n')
+    bf.write('#PBS -l nodes=1:default:ppn=1 \n')
+    bf.write('#PBS -l walltime=72:00:00 \n')
+    # bf.write('#PBS -A COMP')
+    bf.write('#PBS -N '+job_name+'\n')                             
+    bf.write('cd '+SCRIPT_DIR+' \n')
+    
+    for line in read_file:
+        read1 = os.path.join(READS_DIR, line.strip() + '_1.fastq')
+        read2 = os.path.join(READS_DIR, line.strip() + '_2.fastq')
+        name = read1.split('/')[-1].split('_R1')[0]
+        out_csv = os.path.join(csv_dir, name+'_f2_q20.csv')
+        out_filtered_sam = os.path.join(OUTPUT_DIR, name+'_f2_q20.sam')
+        no_error = True
 
-    output = 'None'
+        output = 'None'
 
-    # 03_compute heteroplasmy likelihood
-    print("\nCalculate heteroplasmy scores")
-    cmd = 'python %s %s %s %s' % (heteroplasmy_likelihood,ref,out_filtered_sam,annotation)
-    print(cmd)
-    try:
-        output = subprocess.check_call(cmd, shell=True, stdout=open(out_csv,'w'))
-    except:
-        no_error = False
-        log_error(cmd, output, sys.exc_info())
+        # 03_compute heteroplasmy likelihood
+        bf.write('echo "Calculate heteroplasmy scores"\n')
+        cmd = 'python %s %s %s %s > %s' % (heteroplasmy_likelihood,ref,out_filtered_sam,annotation, out_csv)
+        bf.write(cmd+'\n')
+        
+        # 04_sort_sites
+        bf.write('echo "Sort scores"\n')
+        cmd = 'python %s %s' % (sort_candidates,out_csv)
+        bf.write(cmd+'\n')
+     
+check_exist('ls', bash_score)
+print('\nCalculate and sort heteroplasmy scores...')
+cmd = 'qsub '+bash_score
 
-    # 04_sort_sites
-    print("\nSort scores")
-    cmd = 'python %s %s' % (sort_candidates,out_csv)
-    print(cmd)
-    try:
-        output = subprocess.check_call(cmd, shell=True)
-    except:
-        no_error = False
-        log_error(cmd, output, sys.exc_info())
+try:
+    output = subprocess.check_call(cmd, shell=True)
+except:
+    no_error = False
+    log_error(cmd, output, sys.exc_info())
+
+check = True
+while check:
+    cmd = 'qstat | grep "SCR'+str(random_id)+'"'
+    output = subprocess.check_output(cmd, shell=True)
+    if output:
+        parts = output.split()
+        if b'C' in parts[-2]:
+            check = False
+    else:
+        check = False
 
 # print (finished_jobs)
 print ('Finished computing heteroplasmy scores.\n')
+
+###########################################################
+# clean up output files
+###########################################################
+hpc_out_dir = os.path.join(OUTPUT_DIR,"hpc_out/")
+os.makedirs(hpc_out_dir)
+cmd = 'mv '+SCRIPT_DIR+'/HTPLASMY_*'+str(random_id)+'* '+hpc_out_dir
+
+try:
+    output = subprocess.check_call(cmd, shell=True)
+except:
+    no_error = False
+    log_error(cmd, output, sys.exc_info())
+
+bash_dir = os.path.join(OUTPUT_DIR,"bash_out/")
+os.makedirs(bash_dir)
+
+cmd = 'mv '+SCRIPT_DIR+'/*'+str(random_id)+'.sh '+bash_dir
+try:
+    output = subprocess.check_call(cmd, shell=True)
+except:
+    no_error = False
+    log_error(cmd, output, sys.exc_info())
+
 
 ###########################################################
 # 05_select_sites
@@ -255,3 +304,4 @@ except:
 
 print("\nSuccess!\n")
 print("Vizualization file : ", out_html)
+
