@@ -53,7 +53,7 @@ def intersect(csvfiles):
 #------------------------------------------------------------------------------
 def scatter_plot(ids, positions):
 	points = []
-	print('Coordinate,Person,Name,GP,A,C,G,T,CountA,CountC,CountG,CountT,total,d')
+	print('Coordinate,Sample,Name,GP,A,C,G,T,CountA,CountC,CountG,CountT,total,d')
 	for i,cur_id in enumerate(ids):
 		items = []
 		for pos,profile in positions.items():
