@@ -208,8 +208,8 @@ def plot_heteroplasmies():
 	if plasmy_df.max()['Coordinate'] > MAX_X:
 		MAX_X = plasmy_df.max()['Coordinate']
 
-	if VISIBLE_SAMPLE_RANGE[1] > plasmy_df['Person'].max() + 1:
-		VISIBLE_SAMPLE_RANGE = (VISIBLE_SAMPLE_RANGE[0], plasmy_df['Person'].max() + 1)
+	if VISIBLE_SAMPLE_RANGE[1] > plasmy_df['Sample'].max() + 1:
+		VISIBLE_SAMPLE_RANGE = (VISIBLE_SAMPLE_RANGE[0], plasmy_df['Sample'].max() + 1)
 
 	#---------------------------------------------------------------------------
 	# Do the plotting
@@ -245,7 +245,7 @@ def plot_heteroplasmies():
 	fig.ygrid.grid_line_color = None
 	# fig.yaxis.visible = False
 
-	person_id = plasmy_df['Person']
+	person_id = plasmy_df['Sample']
 	person_name = plasmy_df['Name']
 	y_ticks_labels = { person_id[i] : person_name[i] for i in range(len(person_id)) }
 	fig.axis.ticker = FixedTicker(ticks=person_id)
@@ -263,7 +263,7 @@ def plot_heteroplasmies():
 	fig.outline_line_color = 'gray'
 	fig.circle(
 		x = 'Coordinate',
-		y = 'Person',
+		y = 'Sample',
 		color = 'color',
 		alpha = 'alpha',
 		size = 6,
@@ -276,11 +276,11 @@ def plot_heteroplasmies():
 	#---------------------------------------------------------------------------
 	global HETEROPLASMY_PROBABILITIES
 
-	g = plasmy_df[['Coordinate','Person','A','C','G','T']].groupby('Coordinate')
+	g = plasmy_df[['Coordinate','Sample','A','C','G','T']].groupby('Coordinate')
 	for gid in g.groups:
 		rows = g.get_group(gid).iterrows()
 		HETEROPLASMY_PROBABILITIES[gid] = [
-			[r[1]['Person'],r[1]['A'],r[1]['C'],r[1]['G'],r[1]['T']] for r in rows
+			[r[1]['Sample'],r[1]['A'],r[1]['C'],r[1]['G'],r[1]['T']] for r in rows
 		]
 
 	return fig, plasmy_source
