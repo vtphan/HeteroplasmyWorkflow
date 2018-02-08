@@ -53,6 +53,7 @@ n_reads = len(reads)
 SCRIPT_DIR = os.getcwd()
 print("HETEROPLASMY")
 
+output = 'None'
 ###########################################################
 # check if OUTPUT_DIR exists
 ###########################################################
@@ -79,7 +80,6 @@ else:
 check_exist('which', 'bwa')
 check_exist('which', 'samtools')
 
-output = 'None'
 if os.path.exists(ref + '.bwt'):
     print('Index exists. Skip indexing by bwa.')
 else:
@@ -133,8 +133,8 @@ for line in reads:
 # 03_compute_heteroplasmy likelihood
 # 04_sort_sites
 ###########################################################
-heteroplasmy_likelihood = os.path.join(SCRIPT_DIR, 'heteroplasmy_likelihood.py')
-sort_candidates = os.path.join(SCRIPT_DIR, 'sort_candidates.py')
+heteroplasmy_likelihood = os.path.join(SCRIPT_DIR, '03_heteroplasmy_likelihood.py')
+sort_candidates = os.path.join(SCRIPT_DIR, '04_sort_candidates.py')
 check_exist('ls', heteroplasmy_likelihood)
 check_exist('ls', sort_candidates)
 check_exist('ls', annotation)
@@ -180,7 +180,7 @@ print ('Finished computing heteroplasmy scores.\n')
 # 05_select_sites
 ###########################################################
 print('Select heteroplasmy sites.')
-select_sites = os.path.join(SCRIPT_DIR, 'select_sites.py')
+select_sites = os.path.join(SCRIPT_DIR, '05_select_sites.py')
 check_exist('ls', select_sites)
 # run select_sites.py
 result_dir = os.path.join(OUTPUT_DIR,"Result")
@@ -203,7 +203,7 @@ except:
 ###########################################################
 # run location_conservation.py
 print('\nCompute site conservation.')
-location_conservation = os.path.join(SCRIPT_DIR, 'location_conservation.py')
+location_conservation = os.path.join(SCRIPT_DIR, '06_location_conservation.py')
 check_exist('ls', location_conservation)
 
 cp_conserved = os.path.join(result_dir, "cp_conserved_"+dist+".csv")
@@ -222,7 +222,7 @@ except:
 ###########################################################
 # run plot_heteroplasmy.py
 print('\nPlot heteroplasmies.')
-plot_heteroplasmy = os.path.join(SCRIPT_DIR, 'plot_heteroplasmy.py')
+plot_heteroplasmy = os.path.join(SCRIPT_DIR, '07_plot_heteroplasmy.py')
 check_exist('ls',plot_heteroplasmy)
 
 genome_name = '"Daucus carota chloroplast genome"'

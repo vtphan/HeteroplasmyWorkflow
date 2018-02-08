@@ -36,9 +36,9 @@ config.readfp(open(sys.argv[1]))
 ref = config.get('config', 'REF')
 annotation = config.get('config', 'ANNOTATION')
 try:
-	dist = config.get('config', 'DIST')
+    dist = config.get('config', 'DIST')
 except:
-	dist = default_dist
+    dist = default_dist
 
 READS_DIR = config.get('config', 'READS_DIR')
 OUTPUT_DIR = config.get('config', 'OUTPUT_DIR')
@@ -124,7 +124,7 @@ with open(bash_file, 'w') as bf:
     bf.write('#PBS -N '+job_name)                             
     bf.write('#PBS -t 0-'+str(n_reads-1)+' \n')
     bf.write('cd '+SCRIPT_DIR+' \n')
-    bf.write('python hpc_align.py '+sys.argv[1]+' '+split_read_dir+'readids${PBS_ARRAYID}_'+str(random_id)+'.txt \n')
+    bf.write('python 02_hpc_align.py '+sys.argv[1]+' '+split_read_dir+'readids${PBS_ARRAYID}_'+str(random_id)+'.txt \n')
 
 check_exist('ls', bash_file)
 print('\nAlign reads...')
@@ -151,8 +151,8 @@ while check:
 # 03_compute_heteroplasmy likelihood
 # 04_sort_sites
 ###########################################################
-heteroplasmy_likelihood = os.path.join(SCRIPT_DIR, 'heteroplasmy_likelihood.py')
-sort_candidates = os.path.join(SCRIPT_DIR, 'sort_candidates.py')
+heteroplasmy_likelihood = os.path.join(SCRIPT_DIR, '03_heteroplasmy_likelihood.py')
+sort_candidates = os.path.join(SCRIPT_DIR, '04_sort_candidates.py')
 check_exist('ls', heteroplasmy_likelihood)
 check_exist('ls', sort_candidates)
 check_exist('ls', annotation)
@@ -246,7 +246,7 @@ except:
 # 05_select_sites
 ###########################################################
 print('Select heteroplasmy sites.')
-select_sites = os.path.join(SCRIPT_DIR, 'select_sites.py')
+select_sites = os.path.join(SCRIPT_DIR, '05_select_sites.py')
 check_exist('ls', select_sites)
 # run select_sites.py
 result_dir = os.path.join(OUTPUT_DIR,"Result")
@@ -269,7 +269,7 @@ except:
 ###########################################################
 # run location_conservation.py
 print('\nCompute site conservation.')
-location_conservation = os.path.join(SCRIPT_DIR, 'location_conservation.py')
+location_conservation = os.path.join(SCRIPT_DIR, '06_location_conservation.py')
 check_exist('ls', location_conservation)
 
 cp_conserved = os.path.join(result_dir, "cp_conserved_"+dist+".csv")
@@ -288,7 +288,7 @@ except:
 ###########################################################
 # run plot_heteroplasmy.py
 print('\nPlot heteroplasmies.')
-plot_heteroplasmy = os.path.join(SCRIPT_DIR, 'plot_heteroplasmy.py')
+plot_heteroplasmy = os.path.join(SCRIPT_DIR, '07_plot_heteroplasmy.py')
 check_exist('ls',plot_heteroplasmy)
 
 genome_name = '"Daucus carota chloroplast genome"'
