@@ -153,9 +153,11 @@ def analyze_positions(profile, ANNOTATION_FILE):
 			print(gene_product[2])
 
 # -----------------------------------------------------------
+# Detect heteroplasmy candidates
 def parse_sam_file(filename, ref_seq, annotation_file):
 	profile = {}
 	count = 0
+	# 1. Detect heteroplasmy sites.  Update profile of alleles that are different from ref.
 	with open(filename, "rU") as file:
 		for line in file:
 			if line[0] != '@':
@@ -165,6 +167,9 @@ def parse_sam_file(filename, ref_seq, annotation_file):
 				seq = extract_ref_seq(ref_seq, cigar, ref_pos, sam_flag)
 				collect_info_alleles(cigar, seq, read, ref_pos, phred, profile)
 
+	# 2. Update profiles of alleles that are the same as ref.
+	# Note: have to do this because reads with bases matching reference bases might be missed
+	# if we go through only one pass (step 1)
 	with open(filename, "rU") as file:
 		for line in file:
 			if line[0] != '@':
