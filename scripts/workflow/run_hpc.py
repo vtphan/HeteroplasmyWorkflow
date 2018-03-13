@@ -4,6 +4,7 @@ import sys
 import datetime
 import random
 from configparser import ConfigParser
+from datetime import datetime
 
 def check_exist(cmd, thing):
     try:
@@ -31,6 +32,17 @@ if len(sys.argv) != 3:
 config = ConfigParser()
 config.readfp(open('defaults.ini'))
 default_dist = config.get('defaults', 'DIST')
+
+# get version
+with open('VERSION', 'r') as f:
+    line = f.readline()
+    version = line.strip()
+
+# get output_day for all output files
+output_day = str(datetime.now()).split(" ")[0].replace(",","")
+
+# make info for output filename
+output_info = "_v"+ver + "_" + output_day
 
 config.readfp(open(sys.argv[1]))
 ref = config.get('config', 'REF')
@@ -253,7 +265,8 @@ result_dir = os.path.join(OUTPUT_DIR,"Result")
 if not os.path.exists(result_dir):
     os.makedirs(result_dir)
 
-cp_heteroplasmy = os.path.join(result_dir,"cp_heteroplasmy.csv")
+cp_het_filename = "chloroplast_heteroplasmy"+output_info+".csv"
+cp_heteroplasmy = os.path.join(result_dir,cp_het_filename)
 cmd = 'python %s %s > %s' %(select_sites, csv_dir, cp_heteroplasmy)
 print(cmd)
 
@@ -272,7 +285,8 @@ print('\nCompute site conservation.')
 location_conservation = os.path.join(SCRIPT_DIR, '06_location_conservation.py')
 check_exist('ls', location_conservation)
 
-cp_conserved = os.path.join(result_dir, "cp_conserved_"+dist+".csv")
+cp_conserved_filename = "chloroplast_conserved_"+dist+output_info+".csv"
+cp_conserved = os.path.join(result_dir, cp_conserved_filename)
 
 cmd = 'python %s %s %s > %s' % (location_conservation, cp_heteroplasmy, dist, cp_conserved)
 print(cmd)
@@ -292,7 +306,10 @@ plot_heteroplasmy = os.path.join(SCRIPT_DIR, '07_plot_heteroplasmy.py')
 check_exist('ls',plot_heteroplasmy)
 
 genome_name = '"Daucus carota chloroplast genome"'
-out_html = os.path.join(OUTPUT_DIR,"cp.html")
+
+outfilename = "chloroplast"+output_info+".html"
+
+out_html = os.path.join(OUTPUT_DIR, outfilename)
 cmd = 'python %s %s %s %s %s %s' %(plot_heteroplasmy, genome_name, annotation, cp_heteroplasmy, cp_conserved, out_html)
 print(cmd)
 
