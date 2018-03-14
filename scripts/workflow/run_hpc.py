@@ -55,6 +55,19 @@ except:
 READS_DIR = config.get('config', 'READS_DIR')
 OUTPUT_DIR = config.get('config', 'OUTPUT_DIR')
 LOG_FILE = config.get('config', 'LOG_FILE')
+
+default_score_threshold = '10'
+try:
+    score_threshold = config.get('config', 'score_threshold')
+except:
+    score_threshold = default_score_threshold
+
+default_percentage_threshold = '0.05'
+try:
+    percentage_threshold = config.get('config', 'percentage_threshold')
+except:
+    percentage_threshold = default_percentage_threshold
+
 #--------------------------------------------------------------
 
 with open(sys.argv[2], 'r') as f:
@@ -267,7 +280,7 @@ if not os.path.exists(result_dir):
 
 cp_het_filename = "chloroplast_heteroplasmy"+output_info+".csv"
 cp_heteroplasmy = os.path.join(result_dir,cp_het_filename)
-cmd = 'python %s %s > %s' %(select_sites, csv_dir, cp_heteroplasmy)
+cmd = 'python %s %s %s %s > %s' %(select_sites, csv_dir, score_threshold, percentage_threshold, cp_heteroplasmy)
 print(cmd)
 
 output = 'None'

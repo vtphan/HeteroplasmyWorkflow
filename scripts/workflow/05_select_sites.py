@@ -14,7 +14,7 @@ def get_individual_id(csvfile):
 	return name
 
 #------------------------------------------------------------------------------
-def filter_csvfile(csvfile, score_threshold=10, percentage_threshold=0.05):
+def filter_csvfile(csvfile, score_threshold, percentage_threshold):
 	# print("Processing", csvfile)
 	high_score = []
 	with open(csvfile) as f:
@@ -34,12 +34,12 @@ def filter_csvfile(csvfile, score_threshold=10, percentage_threshold=0.05):
 	return { s[0] : s for s in selected }
 
 #------------------------------------------------------------------------------
-def intersect(csvfiles):
+def intersect(csvfiles, score_threshold, percentage_threshold):
 	files = {}
 	positions = {}
 	for f in csvfiles:
 		person_id = get_individual_id(f)
-		pos = filter_csvfile(f)
+		pos = filter_csvfile(f, score_threshold, percentage_threshold)
 		for p,profile in pos.items():
 			if p not in positions:
 				positions[p] = ([], [])
@@ -77,9 +77,11 @@ def scatter_plot(ids, positions):
 
 #------------------------------------------------------------------------------
 if __name__ == '__main__':
-	if len(sys.argv) != 2:
-		print("USAGE: ", sys.argv[0], "  csv_dir")
+	if len(sys.argv) != 4:
+		print("USAGE: ", sys.argv[0], "  csv_dir score_threshold percentage_threshold")
 		sys.exit(0)
 	files = get_csvfiles(sys.argv[1])
 	# filter_csvfile(files[0], 'SRR2147184')
-	intersect(files)
+	score_threshold = float(sys.argv[2])
+	percentage_threshold = float(sys.argv[3])
+	intersect(files, score_threshold, percentage_threshold)
