@@ -48,14 +48,23 @@ You can use Anaconda distribution for easier installation.
 You need to specify paths to your data in a configuration file. See config.txt for example.
 
 ##### config.txt:
+
+1. Required inputs:
+
 - READS_DIR: path to reads directory.
 - REF: path to reference genomes.
 - ANNOTATION: path to Annotation file.
 - LOG_FILE: path to log file.
 - OUTPUT_DIR: path to output directory.
-- DIST: name of distance function used to compute conservation scores of heteroplasmic sites (hellinger or consine). This one is optional, default is hellinger distance.
 
 It is not neccessary to use single or double quote for these paths. The workflow will generate the OUTPUT_DIR if it doesn't exists.
+
+2. Optional inputs:
+- DIST: name of distance function used to compute conservation scores of heteroplasmic sites (hellinger or consine). Default = hellinger distance.
+- alignment_quality: quality threshold for SAMtools to filter alignments. Default = 20.
+- score_threshold: threshold for conservation scores of heteroplasmic sites to be shown in visualization. Default = 10.
+- percentage_threshold: threshold for base percentage of heteroplasmic sites to be shown in visualization. Default = 0.05
+
 
 ##### Readids.txt:
 Text file contains all input reads ID you want to run. Each line is reserved for only one ID.
