@@ -36,6 +36,13 @@ LOG_FILE = config.get('config', 'LOG_FILE')
 ref = config.get('config', 'REF')
 OUTPUT_DIR = config.get('config', 'OUTPUT_DIR')
 
+# quality for SAM filter
+default_alignment_quality = '20'
+try:
+    alignment_quality = config.get('config', 'quality')
+except:
+    alignment_quality = default_alignment_quality
+
 #--------------------------------------------------------------
 
 SCRIPT_DIR = os.getcwd()
@@ -72,7 +79,7 @@ for line in read_file:
 
     # 02_filter_by_samtools
     print("Filter bwa's output")
-    cmd = 'samtools view -f 2 -q 20 %s' % out_sam
+    cmd = 'samtools view -f 2 -q %s %s' % (alignment_quality, out_sam)
     try:
         ouptut = subprocess.check_call(cmd, shell=True, stdout=open(out_filtered_sam, 'w'))
     except:
