@@ -32,6 +32,8 @@ if len(sys.argv) != 3:
 config = ConfigParser()
 config.readfp(open('defaults.ini'))
 default_dist = config.get('defaults', 'DIST')
+default_score_threshold = config.get('defaults', 'score_threshold')
+default_percentage_threshold = config.get('defaults', 'percentage_threshold')
 
 # get version
 with open('VERSION', 'r') as f:
@@ -56,13 +58,13 @@ READS_DIR = config.get('config', 'READS_DIR')
 OUTPUT_DIR = config.get('config', 'OUTPUT_DIR')
 LOG_FILE = config.get('config', 'LOG_FILE')
 
-default_score_threshold = '10'
+
 try:
     score_threshold = config.get('config', 'score_threshold')
 except:
     score_threshold = default_score_threshold
 
-default_percentage_threshold = '0.05'
+
 try:
     percentage_threshold = config.get('config', 'percentage_threshold')
 except:
