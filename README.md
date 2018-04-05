@@ -52,12 +52,19 @@ You need to specify paths to your data in a configuration file. See config.txt f
 1. Required inputs:
 
 - READS_DIR: path to reads directory.
-- REF: path to reference genomes.
-- ANNOTATION: path to Annotation file.
+- REF: path to reference genomes. This is the concatenated of all genomes (nuclear DNA, mitochondrial genome, chloroplast genome).
 - LOG_FILE: path to log file.
 - OUTPUT_DIR: path to output directory.
+- cp_ref : path to chloroplast genome.
+- cp_annotation : path to chloroplast annotation file.
+- mt_ref: path to mitochondria genome.
+- mt_annotation: path to mitochondri annotation file.
+- mitochondria: mitochondria sequence IDs. This can be a list, separated by commas.
+- chloroplast: chloroplast sequence IDs. This can be a list, separated by commas.
 
 It is not neccessary to use single or double quote for these paths. The workflow will generate the OUTPUT_DIR if it doesn't exists.
+
+If there are no input sequence IDs for mitochondria or chloroplast, the program terminates. 
 
 2. Optional inputs:
 - DIST: name of distance function used to compute conservation scores of heteroplasmic sites (hellinger or consine). Default = hellinger distance.
@@ -76,5 +83,11 @@ Text file contains all input reads ID you want to run. Each line is reserved for
 
 - config.txt: configuration file
 - readids.txt: read IDs file.
+
+#### VISUALIZATION:
+
+The program will output both visualization for mitochondria and chloroplast if users gives paths to chloroplast and mitochondrial genomes, annotation files, as well as sequence IDs.
+
+Outputs for mitochondria and chloroplast will be separated into OUTPUT_DIR/mitochondria and OUTPUT_DIR/chloroplast directories.
 
 
