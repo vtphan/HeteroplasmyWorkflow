@@ -1,7 +1,7 @@
 import subprocess
 import os
 import sys
-# import datetime
+import datetime
 import time
 import random
 from configparser import ConfigParser
@@ -15,20 +15,21 @@ def check_exist(cmd, thing):
         sys.exit(0)
 
 def log_error(cmd, exec_output, exec_error):
-        with open(LOG_FILE, 'a') as f:
-                f.write('time: %s\ncmd: %s\noutput: %s\nexec error:%s\n' % (str(datetime.datetime.now()), cmd, exec_output, exec_error))
+    import datetime
+    with open(LOG_FILE, 'a') as f:
+        f.write('time: %s\ncmd: %s\noutput: %s\nexec error:%s\n' % (str(datetime.datetime.now()), cmd, exec_output, exec_error))
                 
 def log_final(no_error, argv):
     log_output = os.path.join(SCRIPT_DIR, 'log_align_analyze_sort.txt')
     with open(log_output, 'a') as f:
-        f.write('%s %s %s %s\n' % (no_error, argv[0], argv[1], str(datetime.datetime.now())))
+        f.write('%s %s %s %s\n' % (no_error, argv[0], argv[1], str(datetime.now())))
 
 if len(sys.argv) != 3:
     print('Usage: python', sys.argv[0], 'config_file.txt','read_file.txt')
     sys.exit(0)
 
 #--------------------------------------------------------------
-# read config file
+# read defaults file
 #--------------------------------------------------------------
 config = ConfigParser()
 config.readfp(open('defaults.ini'))
@@ -36,8 +37,12 @@ default_dist = config.get('defaults', 'DIST')
 default_score_threshold = config.get('defaults', 'score_threshold')
 default_percentage_threshold = config.get('defaults', 'percentage_threshold')
 default_alignment_quality = config.get('defaults', 'alignment_quality')
+default_chloroplast = config.get('defaults', 'chloroplast')
+default_mitochondria = config.get('defaults', 'mitochondria')
 
-# get version
+#--------------------------------------------------------------
+# read version
+#--------------------------------------------------------------
 with open('VERSION', 'r') as f:
     line = f.readline()
     version = line.strip()
@@ -48,10 +53,35 @@ output_day = str(datetime.now()).split(" ")[0].replace(",","")
 # make info for output filename
 output_info = "_v"+version + "_" + output_day
 
+#--------------------------------------------------------------
+# read config file
+#--------------------------------------------------------------
 config.readfp(open(sys.argv[1]))
 ref = config.get('config', 'REF')
-annotation = config.get('config', 'ANNOTATION')
+READS_DIR = config.get('config', 'READS_DIR')
+OUTPUT_DIR = config.get('config', 'OUTPUT_DIR')
+LOG_FILE = config.get('config', 'LOG_FILE')
+cp_ref = config.get('config', 'cp_ref')
+mt_ref = config.get('config', 'mt_ref')
+cp_annotation = config.get('config', 'cp_annotation')
+mt_annotation = config.get('config', 'mt_annotation')
 
+
+try:
+    chloroplast = config.get('config', 'chloroplast')
+except:
+    chloroplast = default_chloroplast
+
+try:
+    mitochondria = config.get('config', 'mitochondria')
+except:
+    mitochondria = default_mitochondria
+
+if chloroplast == 'None' and mitochondria == 'None':
+    print('No sequence ID input for chloroplast or mitochondrial genome.')
+    exit()
+
+# read optional parameters
 try:
     dist = config.get('config', 'DIST')
 except:
@@ -62,21 +92,20 @@ try:
 except:
     alignment_quality = default_alignment_quality
 
-READS_DIR = config.get('config', 'READS_DIR')
-OUTPUT_DIR = config.get('config', 'OUTPUT_DIR')
-LOG_FILE = config.get('config', 'LOG_FILE')
-
-
 try:
     score_threshold = config.get('config', 'score_threshold')
 except:
     score_threshold = default_score_threshold
 
-
 try:
     percentage_threshold = config.get('config', 'percentage_threshold')
 except:
     percentage_threshold = default_percentage_threshold
+
+check_exist('ls', cp_ref)
+check_exist('ls', mt_ref)
+check_exist('ls', cp_annotation)
+check_exist('ls', mt_annotation)
 
 #--------------------------------------------------------------
 
@@ -116,7 +145,7 @@ start_time = time.time()
 ###########################################################
 check_exist('which', 'bwa')
 check_exist('which', 'samtools')
-import datetime
+# import datetime
 
 if os.path.exists(ref + '.bwt'):
     print('\nIndex exists. Skip indexing by bwa.')
@@ -124,7 +153,7 @@ else:
     print('\nIndex', ref)
     cmd = 'bwa index %s' % ref
     with open(LOG_FILE, 'a') as f:
-        f.write('%s\n%s\n' % (str(datetime.datetime.now()), cmd))
+        f.write('%s\n%s\n' % (str(datetime.now()), cmd))
 
     try:
         output = subprocess.check_call(cmd, shell=True)
@@ -134,13 +163,27 @@ else:
 
 index_time = time.time()
 print("Index time: ", index_time-start_time)
+
 ###########################################################
 # 02_alignment
 # 02_filter_by_samtools
 ###########################################################
+if chloroplast != 'None':
+    cp_out = os.path.join(OUTPUT_DIR, 'cp')
+    if not os.path.exists(cp_out):
+        os.makedirs(cp_out)
+
+if mitochondria != 'None':
+    mt_out = os.path.join(OUTPUT_DIR, 'mt')
+    if not os.path.exists(mt_out):
+        os.makedirs(mt_out)
+
+
 random_id = random.randint(1,999999)
 split_read_dir = os.path.join(OUTPUT_DIR,"out/")
-os.makedirs(split_read_dir)
+if not os.path.exists(split_read_dir):
+    os.makedirs(split_read_dir)
+
 # split read id to separated files
 for i in range(0, n_reads):
     read_file = os.path.join(split_read_dir, 'readids'+str(i)+'_'+str(random_id)+'.txt')
@@ -167,8 +210,9 @@ with open(bash_file, 'w') as bf:
     bf.write('python 02_hpc_align.py '+sys.argv[1]+' '+split_read_dir+'readids${PBS_ARRAYID}_'+str(random_id)+'.txt \n')
 
 check_exist('ls', bash_file)
-print('\nAlign reads...')
+print('\nAlign and filter reads...')
 cmd = 'qsub '+bash_file
+
 
 try:
     output = subprocess.check_call(cmd, shell=True)
@@ -189,177 +233,38 @@ while check:
    
 align_filter_time = time.time()
 print("Alignment and Filtering time:", align_filter_time-index_time)
-###########################################################
-# 03_compute_heteroplasmy likelihood
-# 04_sort_sites
-###########################################################
-heteroplasmy_likelihood = os.path.join(SCRIPT_DIR, '03_heteroplasmy_likelihood.py')
-sort_candidates = os.path.join(SCRIPT_DIR, '04_sort_candidates.py')
-check_exist('ls', heteroplasmy_likelihood)
-check_exist('ls', sort_candidates)
-check_exist('ls', annotation)
-read_file = open(sys.argv[2])
 
-csv_dir = os.path.join(OUTPUT_DIR, "csv")
-if not os.path.exists(csv_dir):
-    os.makedirs(csv_dir)
+# ###########################################################
+# run partial workflow for chloroplast
+# ###########################################################
 
-# make bash file
-job_name = 'HTPLASMY_SCR'+str(random_id)
-fname = 'heteroplasmy_score'+str(random_id)+'.sh'
-bash_score = os.path.join(SCRIPT_DIR, fname)
-with open(bash_score, 'w') as bf:
-    bf.write('#!/bin/sh \n')
-    bf.write('#PBS -l nodes=1:default:ppn=1 \n')
-    bf.write('#PBS -l walltime=72:00:00 \n')
-    # bf.write('#PBS -A COMP')
-    bf.write('#PBS -N '+job_name+'\n')                             
-    bf.write('cd '+SCRIPT_DIR+' \n')
-    
-    for line in read_file:
-        read1 = os.path.join(READS_DIR, line.strip() + '_1.fastq')
-        read2 = os.path.join(READS_DIR, line.strip() + '_2.fastq')
-        name = read1.split('/')[-1].split('_R1')[0]
-        out_csv = os.path.join(csv_dir, name+'_f2_q'+alignment_quality+'.csv')
-        out_filtered_sam = os.path.join(OUTPUT_DIR, name+'_f2_q'+alignment_quality+'.sam')
-        no_error = True
+if chloroplast != 'None':
+    partial_workflow = os.path.join(SCRIPT_DIR, 'partial_workflow.py')
+    check_exist('ls', partial_workflow)
+    cp_out = os.path.join(OUTPUT_DIR,'cp')
+    params = [cp_ref, cp_annotation, dist, sys.argv[2], 'chloroplast'+output_info+'.html', str(random_id), READS_DIR, cp_out, LOG_FILE, alignment_quality]
+    cmd = 'python partial_workflow.py %s' %(" ".join(params))
+    try:
+        output = subprocess.check_call(cmd, shell=True)
+    except:
+        no_error = False
+        log_error(cmd, output, sys.exc_info())
+else:
+    print("No sequence ID input for chloroplast genome.")
 
-        output = 'None'
-
-        # 03_compute heteroplasmy likelihood
-        bf.write('echo "Calculate heteroplasmy scores"\n')
-        cmd = 'python %s %s %s %s > %s' % (heteroplasmy_likelihood,ref,out_filtered_sam,annotation, out_csv)
-        bf.write(cmd+'\n')
-        
-
-        # 04_sort_sites
-        bf.write('echo "Sort scores"\n')
-        cmd = 'python %s %s' % (sort_candidates,out_csv)
-        bf.write(cmd+'\n')
-     
-check_exist('ls', bash_score)
-print('\nCalculate and sort heteroplasmy scores...')
-cmd = 'qsub '+bash_score
-
-try:
-    output = subprocess.check_call(cmd, shell=True)
-except:
-    no_error = False
-    log_error(cmd, output, sys.exc_info())
-
-check = True
-while check:
-    cmd = 'qstat | grep "SCR'+str(random_id)+'"'
-    output = subprocess.check_output(cmd, shell=True)
-    if output:
-        parts = output.split()
-        if b'C' in parts[-2]:
-            check = False
-    else:
-        check = False
-
-score_time = time.time()
-print("Time for computing score: ", score_time-align_filter_time)
-# print (finished_jobs)
-print ('Finished computing heteroplasmy scores.\n')
-
-###########################################################
-# clean up output files
-###########################################################
-hpc_out_dir = os.path.join(OUTPUT_DIR,"hpc_out/")
-if not os.path.exists(hpc_out_dir):
-    os.makedirs(hpc_out_dir)
-cmd = 'mv '+SCRIPT_DIR+'/HTPLASMY_*'+str(random_id)+'* '+hpc_out_dir
-
-try:
-    output = subprocess.check_call(cmd, shell=True)
-except:
-    no_error = False
-    log_error(cmd, output, sys.exc_info())
-
-bash_dir = os.path.join(OUTPUT_DIR,"bash_out/")
-if not os.path.exists(bash_dir):
-    os.makedirs(bash_dir)
-
-cmd = 'mv '+SCRIPT_DIR+'/*'+str(random_id)+'.sh '+bash_dir
-try:
-    output = subprocess.check_call(cmd, shell=True)
-except:
-    no_error = False
-    log_error(cmd, output, sys.exc_info())
-
-
-###########################################################
-# 05_select_sites
-###########################################################
-print('Select heteroplasmy sites.')
-select_sites = os.path.join(SCRIPT_DIR, '05_select_sites.py')
-check_exist('ls', select_sites)
-# run select_sites.py
-result_dir = os.path.join(OUTPUT_DIR,"Result")
-if not os.path.exists(result_dir):
-    os.makedirs(result_dir)
-
-cp_het_filename = "chloroplast_heteroplasmy"+output_info+".csv"
-cp_heteroplasmy = os.path.join(result_dir,cp_het_filename)
-cmd = 'python %s %s %s %s > %s' %(select_sites, csv_dir, score_threshold, percentage_threshold, cp_heteroplasmy)
-print(cmd)
-
-output = 'None'
-try:
-    output = subprocess.check_call(cmd, shell=True)
-except:
-    no_error = False
-    log_error(cmd, output, sys.exc_info())
-
-select_time = time.time()
-print("Time for selecting sites: ", select_time-score_time)
-###########################################################
-# 06_compute_site_conservation
-###########################################################
-# run location_conservation.py
-print('\nCompute site conservation.')
-location_conservation = os.path.join(SCRIPT_DIR, '06_location_conservation.py')
-check_exist('ls', location_conservation)
-
-cp_conserved_filename = "chloroplast_conserved_"+dist+output_info+".csv"
-cp_conserved = os.path.join(result_dir, cp_conserved_filename)
-
-cmd = 'python %s %s %s > %s' % (location_conservation, cp_heteroplasmy, dist, cp_conserved)
-print(cmd)
-
-try:
-    output = subprocess.check_call(cmd, shell=True)
-except:
-    no_error = False
-    log_error(cmd, output, sys.exc_info())
-
-conserved_time = time.time()
-print("Time for computing conserved sites: ", conserved_time-select_time)
-###########################################################
-# 07_plot
-###########################################################
-# run plot_heteroplasmy.py
-print('\nPlot heteroplasmies.')
-plot_heteroplasmy = os.path.join(SCRIPT_DIR, '07_plot_heteroplasmy.py')
-check_exist('ls',plot_heteroplasmy)
-
-genome_name = '"Daucus carota chloroplast genome"'
-
-outfilename = "chloroplast"+output_info+".html"
-
-out_html = os.path.join(OUTPUT_DIR, outfilename)
-cmd = 'python %s %s %s %s %s %s' %(plot_heteroplasmy, genome_name, annotation, cp_heteroplasmy, cp_conserved, out_html)
-print(cmd)
-
-try:
-    output = subprocess.check_call(cmd, shell=True)
-except:
-    no_error = False
-    log_error(cmd, output, sys.exc_info())
-
-plot_time = time.time()
-print("Plotting time: ", plot_time-conserved_time)
-print("\nSuccess!\n")
-print("Vizualization file : ", out_html)
-
+# ###########################################################
+# run partial workflow for mitochondria
+# ###########################################################
+if mitochondria != 'None':
+    partial_workflow = os.path.join(SCRIPT_DIR, 'partial_workflow.py')
+    check_exist('ls', partial_workflow)
+    mt_out = os.path.join(OUTPUT_DIR,'mt')
+    params = [mt_ref, mt_annotation, dist, sys.argv[2], 'mitochondria'+output_info+'.html', str(random_id), READS_DIR, mt_out, LOG_FILE, alignment_quality]
+    cmd = 'python partial_workflow.py %s' %(" ".join(params))
+    try:
+        output = subprocess.check_call(cmd, shell=True)
+    except:
+        no_error = False
+        log_error(cmd, output, sys.exc_info())
+else:
+    print("No sequence ID input for mitochondrial genome.")
