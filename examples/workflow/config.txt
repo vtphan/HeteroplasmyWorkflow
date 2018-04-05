@@ -1,7 +1,13 @@
 [config]
 READS_DIR = /home/jmandel/programs/sra_toolkit/
-REF = /home/dpham2/carrot/Reference/daucus_carota_cp.fasta
-ANNOTATION = /home/dpham2/carrot/Annotations/Cpgenome_annotationsDQ898156.csv
-LOG_FILE = /home/dpham2/carrot/log_run_hpc.txt
-OUTPUT_DIR = /home/dpham2/carrot/CPoutput_testHPC2
+REF = /home/dpham2/carrot/Reference/LNRQ01_1_carrotgenome.fasta
+cp_ref = /home/dpham2/carrot/Reference/DCARv2_PT_plastid.fasta
+cp_annotation = /home/dpham2/carrot/Annotations/NC_008325.1_chloroplast.csv
+mt_ref = /home/dpham2/carrot/Reference/DCARv2_MT_mitochondrial.fasta
+mt_annotation = /home/dpham2/carrot/Annotations/NC_017855.1_mitochondria.csv
+LOG_FILE = /home/dpham2/carrot/log_run_hpc_mt_genomes.txt
+OUTPUT_DIR = /home/dpham2/carrot/OUTPUT/Allgenomes_removeRice
+mitochondria = LNRQ01000010.1
+chloroplast = LNRQ01000011.1
+
 
