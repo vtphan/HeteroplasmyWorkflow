@@ -174,7 +174,7 @@ if 'chloroplast' in out_html_name:
 if 'mitochondria' in out_html_name:
     cp_heteroplasmy = os.path.join(result_dir,"mitochondria_heteroplasmy.csv")
 
-cmd = 'python %s %s > %s' %(select_sites, csv_dir, cp_heteroplasmy)
+cmd = 'python %s %s %s > %s' %(select_sites, csv_dir, read_file, cp_heteroplasmy)
 print(cmd)
 
 output = 'None'

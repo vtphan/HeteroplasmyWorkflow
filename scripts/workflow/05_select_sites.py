@@ -7,6 +7,30 @@ def get_csvfiles(dir):
 	return [ os.path.join(dir, f) for f in os.listdir(dir) if f.endswith('.csv') ]
 
 #------------------------------------------------------------------------------
+def get_csvfiles_by_nameList(dir, namelist):
+
+	def getFile(f_dir, name):
+		for i in f_dir:
+			if name in i:
+				return i
+
+		return None
+
+	f = []
+	f_dir = [ os.path.join(dir, f) for f in os.listdir(dir) if f.endswith('.csv') ]
+	with open(namelist,'r') as nl:
+		for line in nl:
+			if "," in line:
+				name, organism = line.strip().split(",")
+			else:
+				name = line.strip()
+
+			if getFile(f_dir, name):
+					f.append(getFile(f_dir, name))
+
+	return f
+
+#------------------------------------------------------------------------------
 def get_individual_id(csvfile):
 	filename = csvfile.split('/')[-1]
 	prefix = filename.split('.')[0]
@@ -77,11 +101,18 @@ def scatter_plot(ids, positions):
 
 #------------------------------------------------------------------------------
 if __name__ == '__main__':
-	if len(sys.argv) != 4:
-		print("USAGE: ", sys.argv[0], "  csv_dir score_threshold percentage_threshold")
+	if len(sys.argv) != 2 and len(sys.argv) != 3:
+		print("USAGE: ", sys.argv[0], "  csv_dir")
+		print("or")
+		print("USAGE: ", sys.argv[0], "  csv_dir name_list.csv")
 		sys.exit(0)
-	files = get_csvfiles(sys.argv[1])
+
+	if len(sys.argv) == 2:
+		# print("Select sites ")
+		files = get_csvfiles(sys.argv[1])
+	else:
+		# print("Select sites by order by samples")
+		files = get_csvfiles_by_nameList(sys.argv[1], sys.argv[2])
 	# filter_csvfile(files[0], 'SRR2147184')
-	score_threshold = float(sys.argv[2])
-	percentage_threshold = float(sys.argv[3])
-	intersect(files, score_threshold, percentage_threshold)
+	
+	intersect(files)
