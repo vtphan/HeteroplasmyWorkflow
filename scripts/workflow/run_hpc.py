@@ -1,7 +1,8 @@
 import subprocess
 import os
 import sys
-import datetime
+# import datetime
+import time
 import random
 from configparser import ConfigParser
 from datetime import datetime
@@ -34,6 +35,7 @@ config.readfp(open('defaults.ini'))
 default_dist = config.get('defaults', 'DIST')
 default_score_threshold = config.get('defaults', 'score_threshold')
 default_percentage_threshold = config.get('defaults', 'percentage_threshold')
+default_alignment_quality = config.get('defaults', 'alignment_quality')
 
 # get version
 with open('VERSION', 'r') as f:
@@ -44,15 +46,21 @@ with open('VERSION', 'r') as f:
 output_day = str(datetime.now()).split(" ")[0].replace(",","")
 
 # make info for output filename
-output_info = "_v"+ver + "_" + output_day
+output_info = "_v"+version + "_" + output_day
 
 config.readfp(open(sys.argv[1]))
 ref = config.get('config', 'REF')
 annotation = config.get('config', 'ANNOTATION')
+
 try:
     dist = config.get('config', 'DIST')
 except:
     dist = default_dist
+
+try:
+    alignment_quality = config.get('config', 'alignment_quality')
+except:
+    alignment_quality = default_alignment_quality
 
 READS_DIR = config.get('config', 'READS_DIR')
 OUTPUT_DIR = config.get('config', 'OUTPUT_DIR')
@@ -81,6 +89,7 @@ SCRIPT_DIR = os.getcwd()
 print("HETEROPLASMY")
 
 output = 'None'
+
 ###########################################################
 # check if OUTPUT_DIR exists
 ###########################################################
@@ -101,11 +110,13 @@ else:
         os.makedirs(OUTPUT_DIR)
         print("\nOverwrite OUTPUT_DIR.\n")
 
+start_time = time.time()
 ###########################################################
 # 01_bwa
 ###########################################################
 check_exist('which', 'bwa')
 check_exist('which', 'samtools')
+import datetime
 
 if os.path.exists(ref + '.bwt'):
     print('\nIndex exists. Skip indexing by bwa.')
@@ -121,6 +132,8 @@ else:
         no_error = False
         log_error(cmd, output, sys.exc_info())
 
+index_time = time.time()
+print("Index time: ", index_time-start_time)
 ###########################################################
 # 02_alignment
 # 02_filter_by_samtools
@@ -174,6 +187,8 @@ while check:
     else:
         check = False
    
+align_filter_time = time.time()
+print("Alignment and Filtering time:", align_filter_time-index_time)
 ###########################################################
 # 03_compute_heteroplasmy likelihood
 # 04_sort_sites
@@ -205,8 +220,8 @@ with open(bash_score, 'w') as bf:
         read1 = os.path.join(READS_DIR, line.strip() + '_1.fastq')
         read2 = os.path.join(READS_DIR, line.strip() + '_2.fastq')
         name = read1.split('/')[-1].split('_R1')[0]
-        out_csv = os.path.join(csv_dir, name+'_f2_q20.csv')
-        out_filtered_sam = os.path.join(OUTPUT_DIR, name+'_f2_q20.sam')
+        out_csv = os.path.join(csv_dir, name+'_f2_q'+alignment_quality+'.csv')
+        out_filtered_sam = os.path.join(OUTPUT_DIR, name+'_f2_q'+alignment_quality+'.sam')
         no_error = True
 
         output = 'None'
@@ -216,6 +231,7 @@ with open(bash_score, 'w') as bf:
         cmd = 'python %s %s %s %s > %s' % (heteroplasmy_likelihood,ref,out_filtered_sam,annotation, out_csv)
         bf.write(cmd+'\n')
         
+
         # 04_sort_sites
         bf.write('echo "Sort scores"\n')
         cmd = 'python %s %s' % (sort_candidates,out_csv)
@@ -242,6 +258,8 @@ while check:
     else:
         check = False
 
+score_time = time.time()
+print("Time for computing score: ", score_time-align_filter_time)
 # print (finished_jobs)
 print ('Finished computing heteroplasmy scores.\n')
 
@@ -249,7 +267,8 @@ print ('Finished computing heteroplasmy scores.\n')
 # clean up output files
 ###########################################################
 hpc_out_dir = os.path.join(OUTPUT_DIR,"hpc_out/")
-os.makedirs(hpc_out_dir)
+if not os.path.exists(hpc_out_dir):
+    os.makedirs(hpc_out_dir)
 cmd = 'mv '+SCRIPT_DIR+'/HTPLASMY_*'+str(random_id)+'* '+hpc_out_dir
 
 try:
@@ -259,7 +278,8 @@ except:
     log_error(cmd, output, sys.exc_info())
 
 bash_dir = os.path.join(OUTPUT_DIR,"bash_out/")
-os.makedirs(bash_dir)
+if not os.path.exists(bash_dir):
+    os.makedirs(bash_dir)
 
 cmd = 'mv '+SCRIPT_DIR+'/*'+str(random_id)+'.sh '+bash_dir
 try:
@@ -292,6 +312,8 @@ except:
     no_error = False
     log_error(cmd, output, sys.exc_info())
 
+select_time = time.time()
+print("Time for selecting sites: ", select_time-score_time)
 ###########################################################
 # 06_compute_site_conservation
 ###########################################################
@@ -312,6 +334,8 @@ except:
     no_error = False
     log_error(cmd, output, sys.exc_info())
 
+conserved_time = time.time()
+print("Time for computing conserved sites: ", conserved_time-select_time)
 ###########################################################
 # 07_plot
 ###########################################################
@@ -334,6 +358,8 @@ except:
     no_error = False
     log_error(cmd, output, sys.exc_info())
 
+plot_time = time.time()
+print("Plotting time: ", plot_time-conserved_time)
 print("\nSuccess!\n")
 print("Vizualization file : ", out_html)
 
