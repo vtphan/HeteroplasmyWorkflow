@@ -74,7 +74,7 @@ If there are no input sequence IDs for mitochondria or chloroplast, the program 
 
 
 ##### Readids.txt:
-Text file contains all input reads ID you want to run. Each line is reserved for only one ID.
+Text file contains all input reads ID you want to run. Each line is reserved for only one ID. The output plots the samples by the ordering of read names in this file.
 
 
 #### HOW TO RUN:
