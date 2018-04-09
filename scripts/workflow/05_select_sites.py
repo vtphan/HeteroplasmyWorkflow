@@ -101,18 +101,18 @@ def scatter_plot(ids, positions):
 
 #------------------------------------------------------------------------------
 if __name__ == '__main__':
-	if len(sys.argv) != 2 and len(sys.argv) != 3:
-		print("USAGE: ", sys.argv[0], "  csv_dir")
+	if len(sys.argv) != 4 and len(sys.argv) != 5:
+		print("USAGE: ", sys.argv[0], "  csv_dir score_threshold percentage_threshold")
 		print("or")
-		print("USAGE: ", sys.argv[0], "  csv_dir name_list.csv")
+		print("USAGE: ", sys.argv[0], "  csv_dir score_threshold percentage_threshold name_list.csv")
 		sys.exit(0)
 
-	if len(sys.argv) == 2:
-		# print("Select sites ")
+	if len(sys.argv) == 4:
 		files = get_csvfiles(sys.argv[1])
 	else:
-		# print("Select sites by order by samples")
-		files = get_csvfiles_by_nameList(sys.argv[1], sys.argv[2])
-	# filter_csvfile(files[0], 'SRR2147184')
+		files = get_csvfiles_by_nameList(sys.argv[1], sys.argv[4])
 	
-	intersect(files)
+	score_threshold = int(sys.argv[2])
+	percentage_threshold = float(sys.argv[3])
+	# filter_csvfile(files[0], 'SRR2147184')
+	intersect(files, score_threshold, percentage_threshold)

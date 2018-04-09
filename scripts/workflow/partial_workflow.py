@@ -22,8 +22,8 @@ def log_final(no_error, argv):
     with open(log_output, 'a') as f:
         f.write('%s %s %s %s\n' % (no_error, argv[0], argv[1], str(datetime.now())))
 
-if len(sys.argv) != 11:
-    print('Usage: python', sys.argv[0], 'ref', 'annotation', 'dist', 'read_file', 'output.html', 'random_id', 'READS_DIR', 'output_dir', 'log_file', 'alignment_quality')
+if len(sys.argv) != 13:
+    print('Usage: python', sys.argv[0], 'ref', 'annotation', 'dist', 'read_file', 'output.html', 'random_id', 'READS_DIR', 'output_dir', 'log_file', 'alignment_quality', 'score_threshold', 'percentage_threshold')
     sys.exit(0)
 
 ref = sys.argv[1]
@@ -36,16 +36,9 @@ READS_DIR = sys.argv[7]
 OUTPUT_DIR = sys.argv[8]
 LOG_FILE = sys.argv[9]
 alignment_quality = sys.argv[10]
+score_threshold = sys.argv[11]
+percentage_threshold = sys.argv[12]
 
-# print(ref)
-# print(annotation)
-# print(dist)
-# print(read_file)
-# print(out_html)
-# print(random_id)
-# print(READS_DIR)
-# print(OUTPUT_DIR)
-# print(LOG_FILE)
 
 # read version
 with open('VERSION','r') as f:
@@ -174,7 +167,7 @@ if 'chloroplast' in out_html_name:
 if 'mitochondria' in out_html_name:
     cp_heteroplasmy = os.path.join(result_dir,"mitochondria_heteroplasmy.csv")
 
-cmd = 'python %s %s %s > %s' %(select_sites, csv_dir, read_file, cp_heteroplasmy)
+cmd = 'python %s %s %s %s %s > %s' %(select_sites, csv_dir, score_threshold, percentage_threshold, read_file, cp_heteroplasmy)
 print(cmd)
 
 output = 'None'
