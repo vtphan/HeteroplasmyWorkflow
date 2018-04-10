@@ -84,7 +84,8 @@ def main():
 	conservation_fig = plot_conservation_annotations(plasmy_fig, prob_data_source)
 
 	# coverage filter
-	coverage_filter1, coverage_filter2= build_coverage_filter(plasmy_source)
+	# coverage_filter1, coverage_filter2= build_coverage_filter(plasmy_source)
+	coverage_filter1 = build_coverage_filter(plasmy_source)
 
 	# Build widgets
 	search_input = build_search_input(plasmy_fig, label_source, line_source)
@@ -96,8 +97,7 @@ def main():
 		conservation_fig, 
 		annotation_fig, 
 		prob_fig, 
-		coverage_filter1,
-		coverage_filter2, 
+		coverage_filter1, 
 		search_input, 
 		clear_button
 	)
@@ -132,7 +132,7 @@ def plasmy_alpha(row):
 #------------------------------------------------------------------------------
 # LAYOUT FIGURES AND WIDGETS
 #------------------------------------------------------------------------------
-def layout_plots(plasmy_fig, conservation_fig, annotation_fig, prob_fig, coverage_filter1, coverage_filter2, search_input, clear_button):
+def layout_plots(plasmy_fig, conservation_fig, annotation_fig, prob_fig, coverage_filter1, search_input, clear_button):
 	acgt = figure(
 		plot_width = DIM[0,1][0],
 		plot_height = DIM[0,1][1],
@@ -167,7 +167,7 @@ def layout_plots(plasmy_fig, conservation_fig, annotation_fig, prob_fig, coverag
 		row(
 			column(plasmy_fig, conservation_fig, annotation_fig),
 			column(prob_fig, acgt),
-			column(widgetbox(coverage_filter1,coverage_filter2,clear_button,search_input, width=200)),
+			column(widgetbox(coverage_filter1,clear_button,search_input, width=200)),
 		),
 	)
 	print('Saved to', ARGS.output)
@@ -216,7 +216,8 @@ def plot_heteroplasmies():
 	#---------------------------------------------------------------------------
 	p_hover = HoverTool(
 		tooltips = [
-			('Sample', '@Type, @Name'),
+			# ('Sample', '@Type, @Name'),
+			('Sample', '@Name'),
 			('Coordinate', '@Coordinate'),
 			('Gene Product', '@GP'),
 			('A', '@A{1.1111}'),
@@ -224,7 +225,7 @@ def plot_heteroplasmies():
 			('G', '@G{1.1111}'),
 			('T', '@T{1.1111}'),
 			('Coverage', '@total'),
-			('NN distance:', '@d'),
+			('NN distance', '@d'),
 		],
 		names = [ 'plasmy' ],
 	)
@@ -672,10 +673,11 @@ def build_coverage_filter(plasmy_source):
 		source.change.emit()
 
 
-	slider1 = Slider(start=0, end=1000, value=0, step=20, title="Coverage 0-1000x", width = 200, callback=CustomJS.from_py_func(slider_callback))
-	slider2 = Slider(start=1000, end=roundup(max_coverage), value=1000, step=100, title="Coverage 1000x - max", width = 200, callback=CustomJS.from_py_func(slider_callback))
+	slider1 = Slider(start=0, end=roundup(max_coverage), value=0, step=100, title="Coverage 0-max", width = 200, callback=CustomJS.from_py_func(slider_callback))
+	# slider2 = Slider(start=1000, end=roundup(max_coverage), value=1000, step=100, title="Coverage 1000x - max", width = 200, callback=CustomJS.from_py_func(slider_callback))
 
-	return slider1, slider2
+	# return slider1, slider2
+	return slider1
 
 #------------------------------------------------------------------------------
 
