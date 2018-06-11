@@ -30,9 +30,9 @@ MAX_X = 1
 #------------------------------------------------------------------------------
 DIM = {
 	(0,0) : (1050, 70),
-	(0,1) : ( 100, 70),
+	(0,1) : ( 120, 70),
 	(1,0) : (1050,550),
-	(1,1) : ( 100,550),
+	(1,1) : ( 120,550),
 	(2,0) : (1050, 90),
 	(2,1) : ( 100, 90),
 }
@@ -106,17 +106,21 @@ def main():
 def acgt_color(base):
 	# color = dict(A='#1f77b4', C='#9467bd', G='#2ca02c', T='#d62728')
 	# color = dict(A='red', C='green', G='blue', T='black')
-	color = dict(A=Set1[4][0], C=Set1[4][1], G=Set1[4][2], T=Set1[4][3])
+	color = dict(A=Set1[7][0], C=Set1[7][1], G=Set1[7][2], T=Set1[7][3], D=Set1[7][4], I=Set1[7][6])
 	return color[base]
 
 def plasmy_color(row):
-	if row['A']>row['C'] and row['A']>row['G'] and row['A']>row['T']:
+	if row['A']>row['C'] and row['A']>row['G'] and row['A']>row['T'] and row['A']>row['D'] and row['A']>row['I']:
 		return acgt_color('A')
-	if row['C']>row['A'] and row['C']>row['G'] and row['C']>row['T']:
+	if row['C']>row['A'] and row['C']>row['G'] and row['C']>row['T'] and row['C']>row['D'] and row['C']>row['I']:
 		return acgt_color('C')
-	if row['G']>row['A'] and row['G']>row['C'] and row['G']>row['T']:
+	if row['G']>row['A'] and row['G']>row['C'] and row['G']>row['T'] and row['G']>row['D'] and row['G']>row['I']:
 		return acgt_color('G')
-	return acgt_color('T')
+	if row['T']>row['A'] and row['T']>row['C'] and row['T']>row['G'] and row['T']>row['D'] and row['T']>row['I']:
+		return acgt_color('T')
+	if row['D']>row['A'] and row['D']>row['C'] and row['D']>row['G'] and row['D']>row['T'] and row['D']>row['I']:
+		return acgt_color('D')
+	return acgt_color('I')
 
 #------------------------------------------------------------------------------
 def certainty(p):
@@ -126,7 +130,7 @@ def plasmy_alpha(row):
 	certainty_int = [certainty([0,0,0.5,0.5]), certainty([0,0,0.05,0.95])]   
 	alpha_int = [0.4,1]
 	min_alpha = 0.1
-	h = certainty([row['A'],row['C'],row['G'],row['T']])
+	h = certainty([row['A'],row['C'],row['G'],row['T'],row['D'],row['I']])
 	return numpy.interp(h, certainty_int, alpha_int, left=min_alpha, right=1)
 
 #------------------------------------------------------------------------------
@@ -152,10 +156,10 @@ def layout_plots(plasmy_fig, conservation_fig, annotation_fig, prob_fig, coverag
 	acgt.outline_line_color = 'gray'
 
 	source_A = ColumnDataSource(data=dict(
-		x=[1,2,3,4],
-		y=[1,1,1,1],
-		text=['A','C','G','T'],
-		text_color=[acgt_color('A'), acgt_color('C'), acgt_color('G'), acgt_color('T')],
+		x=[1,2,3,4,5,6],
+		y=[1,1,1,1,1,1],
+		text=['A','C','G','T','D','I'],
+		text_color=[acgt_color('A'), acgt_color('C'), acgt_color('G'), acgt_color('T'), acgt_color('D'), acgt_color('I')],
 	))
 	lab_A = LabelSet(
 		x='x',y='y',text='text',text_color='text_color',text_align='center',
@@ -224,6 +228,8 @@ def plot_heteroplasmies():
 			('C', '@C{1.1111}'),
 			('G', '@G{1.1111}'),
 			('T', '@T{1.1111}'),
+			('D', '@D{1.1111}'),
+			('I', '@I{1.1111}'),
 			('Coverage', '@total'),
 			('NN distance', '@d'),
 		],
@@ -277,11 +283,11 @@ def plot_heteroplasmies():
 	#---------------------------------------------------------------------------
 	global HETEROPLASMY_PROBABILITIES
 
-	g = plasmy_df[['Coordinate','Sample','A','C','G','T']].groupby('Coordinate')
+	g = plasmy_df[['Coordinate','Sample','A','C','G','T','D','I']].groupby('Coordinate')
 	for gid in g.groups:
 		rows = g.get_group(gid).iterrows()
 		HETEROPLASMY_PROBABILITIES[gid] = [
-			[r[1]['Sample'],r[1]['A'],r[1]['C'],r[1]['G'],r[1]['T']] for r in rows
+			[r[1]['Sample'],r[1]['A'],r[1]['C'],r[1]['G'],r[1]['T'],r[1]['D'],r[1]['I']] for r in rows
 		]
 
 	return fig, plasmy_source
@@ -473,27 +479,27 @@ def plot_conservation_annotations(main_fig, targeted_source):
 				v = items[i];
 				if (v[0] in samples) {
 					u = samples[v[0]];
-					samples[v[0]] = [u[0]+1, u[1]+v[1], u[2]+v[2], u[3]+v[3], u[4]+v[4]];
+					samples[v[0]] = [u[0]+1, u[1]+v[1], u[2]+v[2], u[3]+v[3], u[4]+v[4], u[5]+v[5], u[6]+v[6]];
 				} else {
-					samples[v[0]] = [1, v[1], v[2], v[3], v[4]];
+					samples[v[0]] = [1, v[1], v[2], v[3], v[4], v[5], v[6]];
 				}
 			}
 		}
 		for (var s in samples) {
 			if (samples.hasOwnProperty(s)) {
 				u = samples[s];
-				v = [u[1]/u[0], u[2]/u[0], u[3]/u[0], u[4]/u[0]];
+				v = [u[1]/u[0], u[2]/u[0], u[3]/u[0], u[4]/u[0], u[5]/u[0], u[6]/u[0]];
 				y = parseInt(s);
-				Array.prototype.push.apply(targeted_data['y'], [y,y,y,y]);
-				Array.prototype.push.apply(targeted_data['left'], [0,v[0],v[0]+v[1],v[0]+v[1]+v[2]]);
-				Array.prototype.push.apply(targeted_data['right'], [v[0],v[0]+v[1],v[0]+v[1]+v[2],1]);
-				Array.prototype.push.apply(targeted_data['height'], [0.9,0.9,0.9,0.9]);
-				Array.prototype.push.apply(targeted_data['color'], ['%s','%s','%s','%s']);
+				Array.prototype.push.apply(targeted_data['y'], [y,y,y,y,y,y]);
+				Array.prototype.push.apply(targeted_data['left'], [0,v[0],v[0]+v[1],v[0]+v[1]+v[2],v[0]+v[1]+v[2]+v[3],v[0]+v[1]+v[2]+v[3]+v[4]]);
+				Array.prototype.push.apply(targeted_data['right'], [v[0],v[0]+v[1],v[0]+v[1]+v[2],v[0]+v[1]+v[2]+v[3],v[0]+v[1]+v[2]+v[3]+v[4],1]);
+				Array.prototype.push.apply(targeted_data['height'], [0.9,0.9,0.9,0.9,0.9,0.9]);
+				Array.prototype.push.apply(targeted_data['color'], ['%s','%s','%s','%s','%s','%s']);
 			}
 		}
 
 		targeted_source.change.emit();
-	""" % (HETEROPLASMY_PROBABILITIES,acgt_color('A'),acgt_color('C'),acgt_color('G'),acgt_color('T')))
+	""" % (HETEROPLASMY_PROBABILITIES,acgt_color('A'),acgt_color('C'),acgt_color('G'),acgt_color('T'),acgt_color('D'),acgt_color('I')))
 
 	c_hover = HoverTool(
 		tooltips = [

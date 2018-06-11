@@ -43,13 +43,39 @@ def collect_info_alleles(cigar, ref, read, reference_pos, phred, profile={}):
 					profile[reference_pos+d[2]]['err'][d[3]] = []
 				profile[reference_pos+d[2]]['err'].setdefault(d[1], [])
 				profile[reference_pos+d[2]]['err'][d[1]].append(10**(-(ord(phred[d[0]])-33)/10))
-				if d[3] != profile[reference_pos+d[2]]['ref']:
-					print("Something is wrong", d[3], profile[reference_pos+d[2]])
-					raise Exception("QUIT")
+				# if d[3] != profile[reference_pos+d[2]]['ref']:
+				# 	print("Something is wrong", d[3], profile[reference_pos+d[2]])
+				# 	raise Exception("QUIT")
 		elif op == 'I':
+			read_substr = read[read_pos:read_pos+length]
+			if reference_pos + ref_pos not in profile:
+				profile[reference_pos+ref_pos] = {'ref':'-', 'err':{}}
+				profile[reference_pos+ref_pos]['err']['-'] = []
+			
+			profile[reference_pos+ref_pos]['err'].setdefault('I',[])
+
+			e = 0
+			for i in range(length):
+				e = e + 10**(-(ord(phred[read_pos+i])-33)/10)
+			profile[reference_pos+ref_pos]['err']['I'].append(float(e/length))
+			# profile[reference_pos+ref_pos]['err']['I'].append(10**(-(ord(phred[read_pos])-33)/10))
+
 			read_pos += length
+
 		elif op == 'D':
-			ref_pos += length
+			ref_substr = ref[ref_pos:ref_pos+length]
+
+			for i in range(length):
+				
+				if reference_pos+ref_pos not in profile:
+					profile[reference_pos+ref_pos] = {'ref':ref_substr[i], 'err': {}}
+					profile[reference_pos+ref_pos]['err'][ref_substr[i]] = []
+				profile[reference_pos+ref_pos]['err'].setdefault('D', [])
+				profile[reference_pos+ref_pos]['err']['D'].append(0)
+				# profile[reference_pos+ref_pos]['err']['D'].append(10**(-(ord(phred[ref_pos])-33)/10))
+
+				ref_pos += 1
+
 		elif op == 'H':
 			pass
 	# print(count, "potential SNPs found.")
@@ -89,6 +115,15 @@ def collect_info_ref(cigar, ref, read, reference_pos, phred, profile):
 		elif op == 'I':
 			read_pos += length
 		elif op == 'D':
+			ref_substr = ref[ref_pos:ref_pos+length]
+
+			for i,c in enumerate(ref_substr):
+				cur_pos = reference_pos + ref_pos + i
+				if cur_pos in profile:
+					if c == profile[cur_pos]['ref']:
+						profile[cur_pos]['err'][c].append(0)
+						# profile[cur_pos]['err'][c].append(10**(-(ord(phred[ref_pos+i])-33)/10))
+
 			ref_pos += length
 		elif op == 'H':
 			pass

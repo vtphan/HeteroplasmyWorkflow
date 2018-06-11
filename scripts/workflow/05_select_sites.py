@@ -45,11 +45,13 @@ def filter_csvfile(csvfile, score_threshold, percentage_threshold):
 		reader = csv.DictReader(f)
 		for row in reader:
 			pos, score = int(row['Pos']), float(row['Score'])
-			a, c, g, t, total = float(row['A']), float(row['C']), float(row['G']), float(row['T']), float(row['Total'])
-			percentages = sorted([a/total, c/total, g/total, t/total])
-			highest, second_highest = percentages[3], percentages[2]
+			
+			a, c, g, t, d, i, total = float(row['A']), float(row['C']), float(row['G']), float(row['T']), float(row['D']), float(row['I']), float(row['Total'])
+			percentages = sorted([a/total, c/total, g/total, t/total, d/total, i/total])
+			highest, second_highest = percentages[5], percentages[4]
+			
 			if score >= score_threshold:
-				high_score.append((pos, score, second_highest, row['GeneProduct'], a/total, c/total, g/total, t/total, a, c, g, t, total))
+				high_score.append((pos, score, second_highest, row['GeneProduct'], a/total, c/total, g/total, t/total, d/total, i/total, a, c, g, t, d, i, total))
 				# print("%d\t%.4f\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\t%.4f\t%.4f\t%.4f\t%.4f" % (pos, score, a,c,g,t,total,percentages[0],percentages[1],percentages[2],percentages[3]))
 			else:
 				break
@@ -77,7 +79,7 @@ def intersect(csvfiles, score_threshold, percentage_threshold):
 #------------------------------------------------------------------------------
 def scatter_plot(ids, positions):
 	points = []
-	print('Coordinate,Sample,Name,GP,A,C,G,T,CountA,CountC,CountG,CountT,total,d')
+	print('Coordinate,Sample,Name,GP,A,C,G,T,D,I,CountA,CountC,CountG,CountT,CountD,CountI,total,d')
 	for i,cur_id in enumerate(ids):
 		items = []
 		for pos,profile in positions.items():
@@ -86,7 +88,7 @@ def scatter_plot(ids, positions):
 				item = profile[1][idx]
 				# print('%d,%d,%s' % (pos,i+1,cur_id))
 				# print(profile)
-				items.append([pos,i+1,cur_id,item[3],item[4],item[5],item[6],item[7],item[8],item[9],item[10],item[11],item[12],0])
+				items.append([pos,i+1,cur_id,item[3],item[4],item[5],item[6],item[7],item[8],item[9],item[10],item[11],item[12], item[13], item[14], item[15],item[16],0])
 
 		# Compute the distance to the nearest neighbors
 		items.sort()
@@ -97,7 +99,7 @@ def scatter_plot(ids, positions):
 			items[-1][-1] = items[-1][0] - items[-2][0]
 
 		for x in items:
-			print('%d,%d,%s,%s,%.4f,%.4f,%.4f,%.4f,%d,%d,%d,%d,%d,%d' % tuple(x))
+			print('%d,%d,%s,%s,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%d,%d,%d,%d,%d,%d,%d,%d' % tuple(x))
 
 #------------------------------------------------------------------------------
 if __name__ == '__main__':
