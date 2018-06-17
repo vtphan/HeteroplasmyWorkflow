@@ -3,9 +3,9 @@ import os
 
 def filter_reads_for_cp_mt(filtered_sam, SAMdir, chloroplast, mitochondria):
 	genome_name = {}
-	if chloroplast != 'None':
-		genome_name['mitochondria'] = mitochondria.split(",")
 	if mitochondria != 'None':
+		genome_name['mitochondria'] = mitochondria.split(",")
+	if chloroplast != 'None':
 		genome_name['chloroplast'] = chloroplast.split(",")
 
 	if len(genome_name) > 0:
