@@ -43,14 +43,14 @@ def collect_info_alleles(cigar, ref, read, reference_pos, phred, profile={}):
 					profile[reference_pos+d[2]]['err'][d[3]] = []
 				profile[reference_pos+d[2]]['err'].setdefault(d[1], [])
 				profile[reference_pos+d[2]]['err'][d[1]].append(10**(-(ord(phred[d[0]])-33)/10))
-				# if d[3] != profile[reference_pos+d[2]]['ref']:
-				# 	print("Something is wrong", d[3], profile[reference_pos+d[2]])
-				# 	raise Exception("QUIT")
+				if d[3] != profile[reference_pos+d[2]]['ref']:
+					print("Something is wrong", d[3], profile[reference_pos+d[2]])
+					raise Exception("QUIT")
 		elif op == 'I':
 			read_substr = read[read_pos:read_pos+length]
-			if reference_pos + ref_pos not in profile:
-				profile[reference_pos+ref_pos] = {'ref':'-', 'err':{}}
-				profile[reference_pos+ref_pos]['err']['-'] = []
+			if reference_pos + ref_pos - 1 not in profile:
+				profile[reference_pos+ref_pos-1] = {'ref':ref[ref_pos-1], 'err':{}}
+				profile[reference_pos+ref_pos-1]['err'][ref[ref_pos-1]] = []
 			
 			profile[reference_pos+ref_pos]['err'].setdefault('I',[])
 
@@ -115,15 +115,6 @@ def collect_info_ref(cigar, ref, read, reference_pos, phred, profile):
 		elif op == 'I':
 			read_pos += length
 		elif op == 'D':
-			ref_substr = ref[ref_pos:ref_pos+length]
-
-			for i,c in enumerate(ref_substr):
-				cur_pos = reference_pos + ref_pos + i
-				if cur_pos in profile:
-					if c == profile[cur_pos]['ref']:
-						profile[cur_pos]['err'][c].append(0)
-						# profile[cur_pos]['err'][c].append(10**(-(ord(phred[ref_pos+i])-33)/10))
-
 			ref_pos += length
 		elif op == 'H':
 			pass
@@ -159,9 +150,10 @@ def analyze_positions(profile, ANNOTATION_FILE):
 		# determine major allele freq
 		major_allele, major_f, count = None, None, 0
 		for a in p['err']:
-			if (major_f is None) or (major_f < len(p['err'][a])):
-				major_allele, major_f = a, len(p['err'][a])
-			count += len(p['err'][a])
+			if a != 'I':
+				if (major_f is None) or (major_f < len(p['err'][a])):
+					major_allele, major_f = a, len(p['err'][a])
+				count += len(p['err'][a])
 		major_f = major_f / count
 
 		for base in ['A','C','G','T']:

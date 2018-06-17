@@ -27,14 +27,14 @@ def group_conservation(rows, sim_func):
 	sim = 0
 	for i in range(len(rows)):
 		for j in range(i+1, len(rows)):
-			a = (rows[i]['A'], rows[i]['C'], rows[i]['G'], rows[i]['T'])
-			b = (rows[j]['A'], rows[j]['C'], rows[j]['G'], rows[j]['T'])
+			a = (rows[i]['A'], rows[i]['C'], rows[i]['G'], rows[i]['T'], rows[i]['D'])
+			b = (rows[j]['A'], rows[j]['C'], rows[j]['G'], rows[j]['T'], rows[j]['D'])
 			sim += sim_func(a,b)
 	return 2.0 * sim / (len(rows)*(len(rows)-1))
 
 #------------------------------------------------------------------------------
 def location_conservation(df, dist_func):
-	g = df[['Coordinate','A','C','G','T']].groupby('Coordinate')
+	g = df[['Coordinate','A','C','G','T','D']].groupby('Coordinate')
 	score = {}
 	for gid in g.groups:
 		group = g.get_group(gid)   # group is a df

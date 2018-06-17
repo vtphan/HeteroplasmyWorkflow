@@ -88,6 +88,7 @@ def main():
 	coverage_filter1 = build_coverage_filter(plasmy_source)
 
 	# Build widgets
+	coor_input = build_search_coordinate(plasmy_fig, line_source)
 	search_input = build_search_input(plasmy_fig, label_source, line_source)
 	clear_button = build_clear_button(label_source, line_source)
 
@@ -98,6 +99,7 @@ def main():
 		annotation_fig, 
 		prob_fig, 
 		coverage_filter1, 
+		coor_input,
 		search_input, 
 		clear_button
 	)
@@ -106,21 +108,19 @@ def main():
 def acgt_color(base):
 	# color = dict(A='#1f77b4', C='#9467bd', G='#2ca02c', T='#d62728')
 	# color = dict(A='red', C='green', G='blue', T='black')
-	color = dict(A=Set1[7][0], C=Set1[7][1], G=Set1[7][2], T=Set1[7][3], D=Set1[7][4], I=Set1[7][6])
+	color = dict(A=Set1[7][0], C=Set1[7][1], G=Set1[7][2], T=Set1[7][3], D=Set1[7][4])
 	return color[base]
 
 def plasmy_color(row):
-	if row['A']>row['C'] and row['A']>row['G'] and row['A']>row['T'] and row['A']>row['D'] and row['A']>row['I']:
+	if row['A']>row['C'] and row['A']>row['G'] and row['A']>row['T'] and row['A']>row['D']:
 		return acgt_color('A')
-	if row['C']>row['A'] and row['C']>row['G'] and row['C']>row['T'] and row['C']>row['D'] and row['C']>row['I']:
+	if row['C']>row['A'] and row['C']>row['G'] and row['C']>row['T'] and row['C']>row['D']:
 		return acgt_color('C')
-	if row['G']>row['A'] and row['G']>row['C'] and row['G']>row['T'] and row['G']>row['D'] and row['G']>row['I']:
+	if row['G']>row['A'] and row['G']>row['C'] and row['G']>row['T'] and row['G']>row['D']:
 		return acgt_color('G')
-	if row['T']>row['A'] and row['T']>row['C'] and row['T']>row['G'] and row['T']>row['D'] and row['T']>row['I']:
+	if row['T']>row['A'] and row['T']>row['C'] and row['T']>row['G'] and row['T']>row['D']:
 		return acgt_color('T')
-	if row['D']>row['A'] and row['D']>row['C'] and row['D']>row['G'] and row['D']>row['T'] and row['D']>row['I']:
-		return acgt_color('D')
-	return acgt_color('I')
+	return acgt_color('D')
 
 #------------------------------------------------------------------------------
 def certainty(p):
@@ -130,17 +130,17 @@ def plasmy_alpha(row):
 	certainty_int = [certainty([0,0,0.5,0.5]), certainty([0,0,0.05,0.95])]   
 	alpha_int = [0.4,1]
 	min_alpha = 0.1
-	h = certainty([row['A'],row['C'],row['G'],row['T'],row['D'],row['I']])
+	h = certainty([row['A'],row['C'],row['G'],row['T'],row['D']])
 	return numpy.interp(h, certainty_int, alpha_int, left=min_alpha, right=1)
 
 #------------------------------------------------------------------------------
 # LAYOUT FIGURES AND WIDGETS
 #------------------------------------------------------------------------------
-def layout_plots(plasmy_fig, conservation_fig, annotation_fig, prob_fig, coverage_filter1, search_input, clear_button):
+def layout_plots(plasmy_fig, conservation_fig, annotation_fig, prob_fig, coverage_filter1, coor_input, search_input, clear_button):
 	acgt = figure(
 		plot_width = DIM[0,1][0],
 		plot_height = DIM[0,1][1],
-		x_range = (0,5),
+		x_range = (0,6),
 		y_range = (0.3,3),
 		toolbar_location=None,
 	)
@@ -156,10 +156,10 @@ def layout_plots(plasmy_fig, conservation_fig, annotation_fig, prob_fig, coverag
 	acgt.outline_line_color = 'gray'
 
 	source_A = ColumnDataSource(data=dict(
-		x=[1,2,3,4,5,6],
-		y=[1,1,1,1,1,1],
-		text=['A','C','G','T','D','I'],
-		text_color=[acgt_color('A'), acgt_color('C'), acgt_color('G'), acgt_color('T'), acgt_color('D'), acgt_color('I')],
+		x=[1,2,3,4,5],
+		y=[1,1,1,1,1],
+		text=['A','C','G','T','D'],
+		text_color=[acgt_color('A'), acgt_color('C'), acgt_color('G'), acgt_color('T'), acgt_color('D')],
 	))
 	lab_A = LabelSet(
 		x='x',y='y',text='text',text_color='text_color',text_align='center',
@@ -170,8 +170,8 @@ def layout_plots(plasmy_fig, conservation_fig, annotation_fig, prob_fig, coverag
 	layout = column(
 		row(
 			column(plasmy_fig, conservation_fig, annotation_fig),
-			column(prob_fig, acgt),
-			column(widgetbox(coverage_filter1,clear_button,search_input, width=200)),
+			column(prob_fig, acgt, clear_button),
+			column(widgetbox(coverage_filter1,coor_input,search_input, width=200)),
 		),
 	)
 	print('Saved to', ARGS.output)
@@ -479,27 +479,27 @@ def plot_conservation_annotations(main_fig, targeted_source):
 				v = items[i];
 				if (v[0] in samples) {
 					u = samples[v[0]];
-					samples[v[0]] = [u[0]+1, u[1]+v[1], u[2]+v[2], u[3]+v[3], u[4]+v[4], u[5]+v[5], u[6]+v[6]];
+					samples[v[0]] = [u[0]+1, u[1]+v[1], u[2]+v[2], u[3]+v[3], u[4]+v[4], u[5]+v[5]];
 				} else {
-					samples[v[0]] = [1, v[1], v[2], v[3], v[4], v[5], v[6]];
+					samples[v[0]] = [1, v[1], v[2], v[3], v[4], v[5]];
 				}
 			}
 		}
 		for (var s in samples) {
 			if (samples.hasOwnProperty(s)) {
 				u = samples[s];
-				v = [u[1]/u[0], u[2]/u[0], u[3]/u[0], u[4]/u[0], u[5]/u[0], u[6]/u[0]];
+				v = [u[1]/u[0], u[2]/u[0], u[3]/u[0], u[4]/u[0], u[5]/u[0]];
 				y = parseInt(s);
-				Array.prototype.push.apply(targeted_data['y'], [y,y,y,y,y,y]);
-				Array.prototype.push.apply(targeted_data['left'], [0,v[0],v[0]+v[1],v[0]+v[1]+v[2],v[0]+v[1]+v[2]+v[3],v[0]+v[1]+v[2]+v[3]+v[4]]);
-				Array.prototype.push.apply(targeted_data['right'], [v[0],v[0]+v[1],v[0]+v[1]+v[2],v[0]+v[1]+v[2]+v[3],v[0]+v[1]+v[2]+v[3]+v[4],1]);
-				Array.prototype.push.apply(targeted_data['height'], [0.9,0.9,0.9,0.9,0.9,0.9]);
-				Array.prototype.push.apply(targeted_data['color'], ['%s','%s','%s','%s','%s','%s']);
+				Array.prototype.push.apply(targeted_data['y'], [y,y,y,y,y]);
+				Array.prototype.push.apply(targeted_data['left'], [0,v[0],v[0]+v[1],v[0]+v[1]+v[2],v[0]+v[1]+v[2]+v[3]]);
+				Array.prototype.push.apply(targeted_data['right'], [v[0],v[0]+v[1],v[0]+v[1]+v[2],v[0]+v[1]+v[2]+v[3],1]);
+				Array.prototype.push.apply(targeted_data['height'], [0.9,0.9,0.9,0.9,0.9]);
+				Array.prototype.push.apply(targeted_data['color'], ['%s','%s','%s','%s','%s']);
 			}
 		}
 
 		targeted_source.change.emit();
-	""" % (HETEROPLASMY_PROBABILITIES,acgt_color('A'),acgt_color('C'),acgt_color('G'),acgt_color('T'),acgt_color('D'),acgt_color('I')))
+	""" % (HETEROPLASMY_PROBABILITIES,acgt_color('A'),acgt_color('C'),acgt_color('G'),acgt_color('T'),acgt_color('D')))
 
 	c_hover = HoverTool(
 		tooltips = [
@@ -624,6 +624,31 @@ def build_search_input(main_fig, label_source, line_source):
 		}
 		""" % (GENE_INTERVAL, -3))
 	return text
+
+#------------------------------------------------------------------------------
+# Search provides zooming into a specific coordinate
+#------------------------------------------------------------------------------
+def build_search_coordinate(main_fig, line_source):
+	coor_input = TextInput(value = '', title='Jump to a specific coordinate', placeholder = 'Coordinate')
+	coor_input.callback = CustomJS(
+		args = dict(
+			x_range = main_fig.x_range,
+			line_source = line_source,
+		),
+		code="""
+		var coor = parseInt(cb_obj.value, 10);	
+		var data_line = line_source.data;
+		var start = coor - 1000;
+		var end = coor + 1000;
+
+		if (coor > 0) {	
+			x_range.start = coor - 1000;
+			x_range.end = coor + 1000;
+			line_source.change.emit();
+		}
+		""")
+
+	return coor_input
 
 #------------------------------------------------------------------------------
 # THIS CLEARS GENE NAMES LABELED BY SEARCH
