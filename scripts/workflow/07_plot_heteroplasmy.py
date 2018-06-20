@@ -174,7 +174,7 @@ def layout_plots(plasmy_fig, conservation_fig, annotation_fig, prob_fig, coverag
 		row(
 			column(plasmy_fig, conservation_fig, annotation_fig),
 			column(prob_fig, acgt, clear_button),
-			column(widgetbox(coverage_filter1,coor_input,DI_box,search_input, width=250)),
+			column(widgetbox(coverage_filter1,DI_box,coor_input,search_input, width=200)),
 		),
 	)
 	print('Saved to', ARGS.output)
@@ -587,7 +587,7 @@ def build_prob_figure(main_fig):
 #------------------------------------------------------------------------------
 def build_search_input(main_fig, label_source, line_source):
 	text = AutocompleteInput(
-		title = 'Zoom into a specific gene',
+		title = 'Find gene',
 		value = '',
 		placeholder = 'Gene symbol',
 		completions = [ v[0] for k,v in GENE_INTERVAL.items() ],
@@ -632,7 +632,7 @@ def build_search_input(main_fig, label_source, line_source):
 # Search provides zooming into a specific coordinate
 #------------------------------------------------------------------------------
 def build_search_coordinate(main_fig, line_source):
-	coor_input = TextInput(value = '', title='Jump to a specific coordinate', placeholder = 'Coordinate')
+	coor_input = TextInput(value = '', title='Find coordinate', placeholder = 'Coordinate')
 	coor_input.callback = CustomJS(
 		args = dict(
 			x_range = main_fig.x_range,
@@ -707,7 +707,7 @@ def build_coverage_filter(plasmy_source):
 		source.change.emit()
 
 
-	slider1 = Slider(start=0, end=roundup(max_coverage), value=0, step=100, title="Coverage 0-max", width = 200, callback=CustomJS.from_py_func(slider_callback))
+	slider1 = Slider(start=0, end=roundup(max_coverage), value=0, step=100, title="Coverage", width = 200, callback=CustomJS.from_py_func(slider_callback))
 	# slider2 = Slider(start=1000, end=roundup(max_coverage), value=1000, step=100, title="Coverage 1000x - max", width = 200, callback=CustomJS.from_py_func(slider_callback))
 
 	# return slider1, slider2
@@ -765,7 +765,7 @@ def build_DI_optional_box(plasmy_source):
 
 		source.change.emit()
 
-	checkbox = CheckboxGroup(labels=["Show sites with Deletion", "Show sites with Insertion"], active=[0,1], callback=CustomJS.from_py_func(checkbox_callback))
+	checkbox = CheckboxGroup(labels=["Deletion sites", "Insertion sites"], active=[0,1], callback=CustomJS.from_py_func(checkbox_callback))
 
 	return checkbox
 
