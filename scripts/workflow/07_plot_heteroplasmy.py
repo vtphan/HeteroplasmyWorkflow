@@ -1,7 +1,7 @@
 from bokeh.models import HoverTool, NumeralTickFormatter, FuncTickFormatter, FixedTicker
 from bokeh.models import ColumnDataSource, LabelSet, TapTool, Spacer
 from bokeh.models import LinearColorMapper, Range1d, Circle
-from bokeh.models.widgets import AutocompleteInput, Button, TextInput, Slider
+from bokeh.models.widgets import AutocompleteInput, Button, TextInput, Slider, CheckboxGroup
 from bokeh.models.callbacks import CustomJS
 from bokeh.plotting import figure, show, output_file
 from bokeh.palettes import Blues9, OrRd9, YlOrRd9, Accent8, BuGn9, Set1
@@ -88,6 +88,7 @@ def main():
 	coverage_filter1 = build_coverage_filter(plasmy_source)
 
 	# Build widgets
+	DI_box = build_DI_optional_box(plasmy_source)
 	coor_input = build_search_coordinate(plasmy_fig, line_source)
 	search_input = build_search_input(plasmy_fig, label_source, line_source)
 	clear_button = build_clear_button(label_source, line_source)
@@ -101,13 +102,15 @@ def main():
 		coverage_filter1, 
 		coor_input,
 		search_input, 
-		clear_button
+		clear_button,
+		DI_box
 	)
 
 #------------------------------------------------------------------------------
 def acgt_color(base):
 	# color = dict(A='#1f77b4', C='#9467bd', G='#2ca02c', T='#d62728')
 	# color = dict(A='red', C='green', G='blue', T='black')
+	# color = dict(A=Set1[6][0], C=Set1[6][1], G=Set1[6][2], T=Set1[6][3], D=Set1[6][4], I=Set1[6][5])
 	color = dict(A=Set1[7][0], C=Set1[7][1], G=Set1[7][2], T=Set1[7][3], D=Set1[7][4])
 	return color[base]
 
@@ -136,7 +139,7 @@ def plasmy_alpha(row):
 #------------------------------------------------------------------------------
 # LAYOUT FIGURES AND WIDGETS
 #------------------------------------------------------------------------------
-def layout_plots(plasmy_fig, conservation_fig, annotation_fig, prob_fig, coverage_filter1, coor_input, search_input, clear_button):
+def layout_plots(plasmy_fig, conservation_fig, annotation_fig, prob_fig, coverage_filter1, coor_input, search_input, clear_button,DI_box):
 	acgt = figure(
 		plot_width = DIM[0,1][0],
 		plot_height = DIM[0,1][1],
@@ -171,7 +174,7 @@ def layout_plots(plasmy_fig, conservation_fig, annotation_fig, prob_fig, coverag
 		row(
 			column(plasmy_fig, conservation_fig, annotation_fig),
 			column(prob_fig, acgt, clear_button),
-			column(widgetbox(coverage_filter1,coor_input,search_input, width=200)),
+			column(widgetbox(coverage_filter1,coor_input,DI_box,search_input, width=250)),
 		),
 	)
 	print('Saved to', ARGS.output)
@@ -654,7 +657,7 @@ def build_search_coordinate(main_fig, line_source):
 # THIS CLEARS GENE NAMES LABELED BY SEARCH
 #------------------------------------------------------------------------------
 def build_clear_button(label_source, line_source):
-	button = Button(label='Clear gene labels', width=200)
+	button = Button(label='Clear gene labels', width=95)
 	button_callback = CustomJS(
 		args = dict(
 			label_source = label_source,
@@ -709,6 +712,62 @@ def build_coverage_filter(plasmy_source):
 
 	# return slider1, slider2
 	return slider1
+
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# Deletion and Insertion box
+#------------------------------------------------------------------------------
+def build_DI_optional_box(plasmy_source):
+		
+
+	def checkbox_callback(source=plasmy_source, window=None):
+		data = source.data
+		active = cb_obj.active
+
+		alpha = data['alpha']
+		alpha_original = data['alpha_original']
+		delet = data['CountD']
+		ins = data['CountI']
+		
+		values = [0,1,2]
+
+		
+		if values[0] not in active and values[1] not in active:
+			for i in range(len(delet)):
+				if delet[i] > 0:
+					alpha[i] = 0
+
+			for i in range(len(ins)):
+				if ins[i] > 0:
+					alpha[i] = 0
+
+		elif values[0] not in active and values[1] in active:
+			for i in range(len(delet)):
+				if delet[i] > 0:
+					alpha[i] = 0
+				else:
+					alpha[i] = alpha_original[i]
+					
+		elif values[0] in active and values[1] not in active:
+			for i in range(len(ins)):
+				if ins[i] > 0:
+					alpha[i] = 0
+				else:
+					alpha[i] = alpha_original[i]
+		else:
+			for i in range(len(delet)):
+				alpha[i] = alpha_original[i]
+			for i in range(len(ins)):
+				alpha[i] = alpha_original[i]
+			
+		
+
+		source.change.emit()
+
+	checkbox = CheckboxGroup(labels=["Show sites with Deletion", "Show sites with Insertion"], active=[0,1], callback=CustomJS.from_py_func(checkbox_callback))
+
+	return checkbox
 
 #------------------------------------------------------------------------------
 
