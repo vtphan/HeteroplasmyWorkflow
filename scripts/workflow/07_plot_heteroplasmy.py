@@ -34,7 +34,7 @@ DIM = {
 	(1,0) : (1050,550),
 	(1,1) : ( 120,550),
 	(2,0) : (1050, 90),
-	(2,1) : ( 100, 90),
+	(2,1) : ( 120, 90),
 }
 
 #------------------------------------------------------------------------------
@@ -173,7 +173,7 @@ def layout_plots(plasmy_fig, conservation_fig, annotation_fig, prob_fig, coverag
 	layout = column(
 		row(
 			column(plasmy_fig, conservation_fig, annotation_fig),
-			column(prob_fig, acgt, clear_button),
+			column(prob_fig, acgt, widgetbox(clear_button, width=70)),
 			column(widgetbox(coverage_filter1,DI_box,coor_input,search_input, width=200)),
 		),
 	)
@@ -216,7 +216,7 @@ def plot_heteroplasmies():
 		MAX_X = plasmy_df.max()['Coordinate']
 
 	if VISIBLE_SAMPLE_RANGE[1] > plasmy_df['Sample'].max() + 1:
-		VISIBLE_SAMPLE_RANGE = (VISIBLE_SAMPLE_RANGE[0], plasmy_df['Sample'].max() + 1)
+		VISIBLE_SAMPLE_RANGE = (VISIBLE_SAMPLE_RANGE[0] , plasmy_df['Sample'].max() + 1)
 
 	#---------------------------------------------------------------------------
 	# Do the plotting
@@ -587,7 +587,7 @@ def build_prob_figure(main_fig):
 #------------------------------------------------------------------------------
 def build_search_input(main_fig, label_source, line_source):
 	text = AutocompleteInput(
-		title = 'Find gene',
+		title = 'Locate gene',
 		value = '',
 		placeholder = 'Gene symbol',
 		completions = [ v[0] for k,v in GENE_INTERVAL.items() ],
@@ -632,7 +632,7 @@ def build_search_input(main_fig, label_source, line_source):
 # Search provides zooming into a specific coordinate
 #------------------------------------------------------------------------------
 def build_search_coordinate(main_fig, line_source):
-	coor_input = TextInput(value = '', title='Find coordinate', placeholder = 'Coordinate')
+	coor_input = TextInput(value = '', title='Locate coordinate', placeholder = 'Coordinate')
 	coor_input.callback = CustomJS(
 		args = dict(
 			x_range = main_fig.x_range,
@@ -657,7 +657,7 @@ def build_search_coordinate(main_fig, line_source):
 # THIS CLEARS GENE NAMES LABELED BY SEARCH
 #------------------------------------------------------------------------------
 def build_clear_button(label_source, line_source):
-	button = Button(label='Clear gene labels', width=95)
+	button = Button(label='Clear gene labels', width=70)
 	button_callback = CustomJS(
 		args = dict(
 			label_source = label_source,
@@ -719,7 +719,17 @@ def build_coverage_filter(plasmy_source):
 # Deletion and Insertion box
 #------------------------------------------------------------------------------
 def build_DI_optional_box(plasmy_source):
+
+	def isSubstitution(L):
+		count = 0
+		for i in L:
+			if i != 0:
+				count += 1
 		
+		if count <= 1:
+			return False
+		else:
+			return True
 
 	def checkbox_callback(source=plasmy_source, window=None):
 		data = source.data
@@ -729,44 +739,78 @@ def build_DI_optional_box(plasmy_source):
 		alpha_original = data['alpha_original']
 		delet = data['CountD']
 		ins = data['CountI']
-		
-		values = [0,1,2]
+		A = data['CountA']
+		C = data['CountC']
+		G = data['CountG']
+		T = data['CountT']
+
+						
+		values = [0,1,2] # 0 for Deletion, 1 for Insertion, 2 for Substitution
 
 		
-		if values[0] not in active and values[1] not in active:
-			for i in range(len(delet)):
-				if delet[i] > 0:
-					alpha[i] = 0
+		if values[2] in active:
+			if values[0] not in active and values[1] not in active:
+				for i in range(len(delet)):
+					if delet[i] > 0:
+						alpha[i] = 0
 
-			for i in range(len(ins)):
-				if ins[i] > 0:
-					alpha[i] = 0
+				for i in range(len(ins)):
+					if ins[i] > 0:
+						alpha[i] = 0
 
-		elif values[0] not in active and values[1] in active:
-			for i in range(len(delet)):
-				if delet[i] > 0:
-					alpha[i] = 0
-				else:
+			elif values[0] not in active and values[1] in active:
+				for i in range(len(delet)):
+					if delet[i] > 0:
+						alpha[i] = 0
+					else:
+						alpha[i] = alpha_original[i]
+						
+			elif values[0] in active and values[1] not in active:
+				for i in range(len(ins)):
+					if ins[i] > 0:
+						alpha[i] = 0
+					else:
+						alpha[i] = alpha_original[i]
+			else:
+				for i in range(len(delet)):
 					alpha[i] = alpha_original[i]
-					
-		elif values[0] in active and values[1] not in active:
-			for i in range(len(ins)):
-				if ins[i] > 0:
-					alpha[i] = 0
-				else:
+				for i in range(len(ins)):
 					alpha[i] = alpha_original[i]
 		else:
 			for i in range(len(delet)):
-				alpha[i] = alpha_original[i]
-			for i in range(len(ins)):
-				alpha[i] = alpha_original[i]
-			
+				if delet[i] > 0 or ins[i] > 0:
+					alpha[i] = alpha_original[i]
+				else:
+					alpha[i] = 0
 		
+			if values[0] not in active and values[1] not in active:
+				for i in range(len(delet)):
+					if delet[i] > 0:
+						alpha[i] = 0
+
+				for i in range(len(ins)):
+					if ins[i] > 0:
+						alpha[i] = 0
+
+			elif values[0] not in active and values[1] in active:
+				for i in range(len(delet)):
+					if delet[i] > 0:
+						alpha[i] = 0
+					
+						
+			elif values[0] in active and values[1] not in active:
+				for i in range(len(ins)):
+					if ins[i] > 0:
+						alpha[i] = 0
+					
+			else:
+				pass
+
 
 		source.change.emit()
 
-	checkbox = CheckboxGroup(labels=["Deletion sites", "Insertion sites"], active=[0,1], callback=CustomJS.from_py_func(checkbox_callback))
-
+	checkbox = CheckboxGroup(labels=["Deletion sites", "Insertion sites", "Substitution"], active=[0,1,2], callback=CustomJS.from_py_func(checkbox_callback))
+	
 	return checkbox
 
 #------------------------------------------------------------------------------
