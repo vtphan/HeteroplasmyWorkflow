@@ -1,7 +1,7 @@
 from bokeh.models import HoverTool, NumeralTickFormatter, FuncTickFormatter, FixedTicker
 from bokeh.models import ColumnDataSource, LabelSet, TapTool, Spacer
 from bokeh.models import LinearColorMapper, Range1d, Circle
-from bokeh.models.widgets import AutocompleteInput, Button, TextInput, Slider
+from bokeh.models.widgets import AutocompleteInput, Button, TextInput, Slider, CheckboxGroup
 from bokeh.models.callbacks import CustomJS
 from bokeh.plotting import figure, show, output_file
 from bokeh.palettes import Blues9, OrRd9, YlOrRd9, Accent8, BuGn9, Set1
@@ -30,11 +30,11 @@ MAX_X = 1
 #------------------------------------------------------------------------------
 DIM = {
 	(0,0) : (1050, 70),
-	(0,1) : ( 100, 70),
+	(0,1) : ( 120, 70),
 	(1,0) : (1050,550),
-	(1,1) : ( 100,550),
+	(1,1) : ( 120,550),
 	(2,0) : (1050, 90),
-	(2,1) : ( 100, 90),
+	(2,1) : ( 120, 90),
 }
 
 #------------------------------------------------------------------------------
@@ -84,9 +84,12 @@ def main():
 	conservation_fig = plot_conservation_annotations(plasmy_fig, prob_data_source)
 
 	# coverage filter
-	coverage_filter1, coverage_filter2= build_coverage_filter(plasmy_source)
+	# coverage_filter1, coverage_filter2= build_coverage_filter(plasmy_source)
+	coverage_filter1 = build_coverage_filter(plasmy_source)
 
 	# Build widgets
+	DI_box = build_DI_optional_box(plasmy_source)
+	coor_input = build_search_coordinate(plasmy_fig, line_source)
 	search_input = build_search_input(plasmy_fig, label_source, line_source)
 	clear_button = build_clear_button(label_source, line_source)
 
@@ -96,27 +99,31 @@ def main():
 		conservation_fig, 
 		annotation_fig, 
 		prob_fig, 
-		coverage_filter1,
-		coverage_filter2, 
+		coverage_filter1, 
+		coor_input,
 		search_input, 
-		clear_button
+		clear_button,
+		DI_box
 	)
 
 #------------------------------------------------------------------------------
 def acgt_color(base):
 	# color = dict(A='#1f77b4', C='#9467bd', G='#2ca02c', T='#d62728')
 	# color = dict(A='red', C='green', G='blue', T='black')
-	color = dict(A=Set1[4][0], C=Set1[4][1], G=Set1[4][2], T=Set1[4][3])
+	# color = dict(A=Set1[6][0], C=Set1[6][1], G=Set1[6][2], T=Set1[6][3], D=Set1[6][4], I=Set1[6][5])
+	color = dict(A=Set1[7][0], C=Set1[7][1], G=Set1[7][2], T=Set1[7][3], D=Set1[7][4])
 	return color[base]
 
 def plasmy_color(row):
-	if row['A']>row['C'] and row['A']>row['G'] and row['A']>row['T']:
+	if row['A']>row['C'] and row['A']>row['G'] and row['A']>row['T'] and row['A']>row['D']:
 		return acgt_color('A')
-	if row['C']>row['A'] and row['C']>row['G'] and row['C']>row['T']:
+	if row['C']>row['A'] and row['C']>row['G'] and row['C']>row['T'] and row['C']>row['D']:
 		return acgt_color('C')
-	if row['G']>row['A'] and row['G']>row['C'] and row['G']>row['T']:
+	if row['G']>row['A'] and row['G']>row['C'] and row['G']>row['T'] and row['G']>row['D']:
 		return acgt_color('G')
-	return acgt_color('T')
+	if row['T']>row['A'] and row['T']>row['C'] and row['T']>row['G'] and row['T']>row['D']:
+		return acgt_color('T')
+	return acgt_color('D')
 
 #------------------------------------------------------------------------------
 def certainty(p):
@@ -126,17 +133,17 @@ def plasmy_alpha(row):
 	certainty_int = [certainty([0,0,0.5,0.5]), certainty([0,0,0.05,0.95])]   
 	alpha_int = [0.4,1]
 	min_alpha = 0.1
-	h = certainty([row['A'],row['C'],row['G'],row['T']])
+	h = certainty([row['A'],row['C'],row['G'],row['T'],row['D']])
 	return numpy.interp(h, certainty_int, alpha_int, left=min_alpha, right=1)
 
 #------------------------------------------------------------------------------
 # LAYOUT FIGURES AND WIDGETS
 #------------------------------------------------------------------------------
-def layout_plots(plasmy_fig, conservation_fig, annotation_fig, prob_fig, coverage_filter1, coverage_filter2, search_input, clear_button):
+def layout_plots(plasmy_fig, conservation_fig, annotation_fig, prob_fig, coverage_filter1, coor_input, search_input, clear_button,DI_box):
 	acgt = figure(
 		plot_width = DIM[0,1][0],
 		plot_height = DIM[0,1][1],
-		x_range = (0,5),
+		x_range = (0,6),
 		y_range = (0.3,3),
 		toolbar_location=None,
 	)
@@ -152,10 +159,10 @@ def layout_plots(plasmy_fig, conservation_fig, annotation_fig, prob_fig, coverag
 	acgt.outline_line_color = 'gray'
 
 	source_A = ColumnDataSource(data=dict(
-		x=[1,2,3,4],
-		y=[1,1,1,1],
-		text=['A','C','G','T'],
-		text_color=[acgt_color('A'), acgt_color('C'), acgt_color('G'), acgt_color('T')],
+		x=[1,2,3,4,5],
+		y=[1,1,1,1,1],
+		text=['A','C','G','T','D'],
+		text_color=[acgt_color('A'), acgt_color('C'), acgt_color('G'), acgt_color('T'), acgt_color('D')],
 	))
 	lab_A = LabelSet(
 		x='x',y='y',text='text',text_color='text_color',text_align='center',
@@ -166,8 +173,8 @@ def layout_plots(plasmy_fig, conservation_fig, annotation_fig, prob_fig, coverag
 	layout = column(
 		row(
 			column(plasmy_fig, conservation_fig, annotation_fig),
-			column(prob_fig, acgt),
-			column(widgetbox(coverage_filter1,coverage_filter2,clear_button,search_input, width=200)),
+			column(prob_fig, acgt, widgetbox(clear_button, width=70)),
+			column(widgetbox(coverage_filter1,DI_box,coor_input,search_input, width=200)),
 		),
 	)
 	print('Saved to', ARGS.output)
@@ -209,22 +216,25 @@ def plot_heteroplasmies():
 		MAX_X = plasmy_df.max()['Coordinate']
 
 	if VISIBLE_SAMPLE_RANGE[1] > plasmy_df['Sample'].max() + 1:
-		VISIBLE_SAMPLE_RANGE = (VISIBLE_SAMPLE_RANGE[0], plasmy_df['Sample'].max() + 1)
+		VISIBLE_SAMPLE_RANGE = (VISIBLE_SAMPLE_RANGE[0] , plasmy_df['Sample'].max() + 1)
 
 	#---------------------------------------------------------------------------
 	# Do the plotting
 	#---------------------------------------------------------------------------
 	p_hover = HoverTool(
 		tooltips = [
-			('Sample', '@Type, @Name'),
+			# ('Sample', '@Type, @Name'),
+			('Sample', '@Name'),
 			('Coordinate', '@Coordinate'),
 			('Gene Product', '@GP'),
 			('A', '@A{1.1111}'),
 			('C', '@C{1.1111}'),
 			('G', '@G{1.1111}'),
 			('T', '@T{1.1111}'),
+			('D', '@D{1.1111}'),
+			('I', '@I{1.1111}'),
 			('Coverage', '@total'),
-			('NN distance:', '@d'),
+			('NN distance', '@d'),
 		],
 		names = [ 'plasmy' ],
 	)
@@ -276,11 +286,11 @@ def plot_heteroplasmies():
 	#---------------------------------------------------------------------------
 	global HETEROPLASMY_PROBABILITIES
 
-	g = plasmy_df[['Coordinate','Sample','A','C','G','T']].groupby('Coordinate')
+	g = plasmy_df[['Coordinate','Sample','A','C','G','T','D','I']].groupby('Coordinate')
 	for gid in g.groups:
 		rows = g.get_group(gid).iterrows()
 		HETEROPLASMY_PROBABILITIES[gid] = [
-			[r[1]['Sample'],r[1]['A'],r[1]['C'],r[1]['G'],r[1]['T']] for r in rows
+			[r[1]['Sample'],r[1]['A'],r[1]['C'],r[1]['G'],r[1]['T'],r[1]['D'],r[1]['I']] for r in rows
 		]
 
 	return fig, plasmy_source
@@ -472,27 +482,27 @@ def plot_conservation_annotations(main_fig, targeted_source):
 				v = items[i];
 				if (v[0] in samples) {
 					u = samples[v[0]];
-					samples[v[0]] = [u[0]+1, u[1]+v[1], u[2]+v[2], u[3]+v[3], u[4]+v[4]];
+					samples[v[0]] = [u[0]+1, u[1]+v[1], u[2]+v[2], u[3]+v[3], u[4]+v[4], u[5]+v[5]];
 				} else {
-					samples[v[0]] = [1, v[1], v[2], v[3], v[4]];
+					samples[v[0]] = [1, v[1], v[2], v[3], v[4], v[5]];
 				}
 			}
 		}
 		for (var s in samples) {
 			if (samples.hasOwnProperty(s)) {
 				u = samples[s];
-				v = [u[1]/u[0], u[2]/u[0], u[3]/u[0], u[4]/u[0]];
+				v = [u[1]/u[0], u[2]/u[0], u[3]/u[0], u[4]/u[0], u[5]/u[0]];
 				y = parseInt(s);
-				Array.prototype.push.apply(targeted_data['y'], [y,y,y,y]);
-				Array.prototype.push.apply(targeted_data['left'], [0,v[0],v[0]+v[1],v[0]+v[1]+v[2]]);
-				Array.prototype.push.apply(targeted_data['right'], [v[0],v[0]+v[1],v[0]+v[1]+v[2],1]);
-				Array.prototype.push.apply(targeted_data['height'], [0.9,0.9,0.9,0.9]);
-				Array.prototype.push.apply(targeted_data['color'], ['%s','%s','%s','%s']);
+				Array.prototype.push.apply(targeted_data['y'], [y,y,y,y,y]);
+				Array.prototype.push.apply(targeted_data['left'], [0,v[0],v[0]+v[1],v[0]+v[1]+v[2],v[0]+v[1]+v[2]+v[3]]);
+				Array.prototype.push.apply(targeted_data['right'], [v[0],v[0]+v[1],v[0]+v[1]+v[2],v[0]+v[1]+v[2]+v[3],1]);
+				Array.prototype.push.apply(targeted_data['height'], [0.9,0.9,0.9,0.9,0.9]);
+				Array.prototype.push.apply(targeted_data['color'], ['%s','%s','%s','%s','%s']);
 			}
 		}
 
 		targeted_source.change.emit();
-	""" % (HETEROPLASMY_PROBABILITIES,acgt_color('A'),acgt_color('C'),acgt_color('G'),acgt_color('T')))
+	""" % (HETEROPLASMY_PROBABILITIES,acgt_color('A'),acgt_color('C'),acgt_color('G'),acgt_color('T'),acgt_color('D')))
 
 	c_hover = HoverTool(
 		tooltips = [
@@ -577,7 +587,7 @@ def build_prob_figure(main_fig):
 #------------------------------------------------------------------------------
 def build_search_input(main_fig, label_source, line_source):
 	text = AutocompleteInput(
-		title = 'Zoom into a specific gene',
+		title = 'Locate gene',
 		value = '',
 		placeholder = 'Gene symbol',
 		completions = [ v[0] for k,v in GENE_INTERVAL.items() ],
@@ -619,10 +629,35 @@ def build_search_input(main_fig, label_source, line_source):
 	return text
 
 #------------------------------------------------------------------------------
+# Search provides zooming into a specific coordinate
+#------------------------------------------------------------------------------
+def build_search_coordinate(main_fig, line_source):
+	coor_input = TextInput(value = '', title='Locate coordinate', placeholder = 'Coordinate')
+	coor_input.callback = CustomJS(
+		args = dict(
+			x_range = main_fig.x_range,
+			line_source = line_source,
+		),
+		code="""
+		var coor = parseInt(cb_obj.value, 10);	
+		var data_line = line_source.data;
+		var start = coor - 1000;
+		var end = coor + 1000;
+
+		if (coor > 0) {	
+			x_range.start = coor - 1000;
+			x_range.end = coor + 1000;
+			line_source.change.emit();
+		}
+		""")
+
+	return coor_input
+
+#------------------------------------------------------------------------------
 # THIS CLEARS GENE NAMES LABELED BY SEARCH
 #------------------------------------------------------------------------------
 def build_clear_button(label_source, line_source):
-	button = Button(label='Clear gene labels', width=200)
+	button = Button(label='Clear gene labels', width=70)
 	button_callback = CustomJS(
 		args = dict(
 			label_source = label_source,
@@ -672,10 +707,111 @@ def build_coverage_filter(plasmy_source):
 		source.change.emit()
 
 
-	slider1 = Slider(start=0, end=1000, value=0, step=20, title="Coverage 0-1000x", width = 200, callback=CustomJS.from_py_func(slider_callback))
-	slider2 = Slider(start=1000, end=roundup(max_coverage), value=1000, step=100, title="Coverage 1000x - max", width = 200, callback=CustomJS.from_py_func(slider_callback))
+	slider1 = Slider(start=0, end=roundup(max_coverage), value=0, step=100, title="Coverage", width = 200, callback=CustomJS.from_py_func(slider_callback))
+	# slider2 = Slider(start=1000, end=roundup(max_coverage), value=1000, step=100, title="Coverage 1000x - max", width = 200, callback=CustomJS.from_py_func(slider_callback))
 
-	return slider1, slider2
+	# return slider1, slider2
+	return slider1
+
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# Deletion and Insertion box
+#------------------------------------------------------------------------------
+def build_DI_optional_box(plasmy_source):
+
+	def isSubstitution(L):
+		count = 0
+		for i in L:
+			if i != 0:
+				count += 1
+		
+		if count <= 1:
+			return False
+		else:
+			return True
+
+	def checkbox_callback(source=plasmy_source, window=None):
+		data = source.data
+		active = cb_obj.active
+
+		alpha = data['alpha']
+		alpha_original = data['alpha_original']
+		delet = data['CountD']
+		ins = data['CountI']
+		A = data['CountA']
+		C = data['CountC']
+		G = data['CountG']
+		T = data['CountT']
+
+						
+		values = [0,1,2] # 0 for Deletion, 1 for Insertion, 2 for Substitution
+
+		
+		if values[2] in active:
+			if values[0] not in active and values[1] not in active:
+				for i in range(len(delet)):
+					if delet[i] > 0:
+						alpha[i] = 0
+
+				for i in range(len(ins)):
+					if ins[i] > 0:
+						alpha[i] = 0
+
+			elif values[0] not in active and values[1] in active:
+				for i in range(len(delet)):
+					if delet[i] > 0:
+						alpha[i] = 0
+					else:
+						alpha[i] = alpha_original[i]
+						
+			elif values[0] in active and values[1] not in active:
+				for i in range(len(ins)):
+					if ins[i] > 0:
+						alpha[i] = 0
+					else:
+						alpha[i] = alpha_original[i]
+			else:
+				for i in range(len(delet)):
+					alpha[i] = alpha_original[i]
+				for i in range(len(ins)):
+					alpha[i] = alpha_original[i]
+		else:
+			for i in range(len(delet)):
+				if delet[i] > 0 or ins[i] > 0:
+					alpha[i] = alpha_original[i]
+				else:
+					alpha[i] = 0
+		
+			if values[0] not in active and values[1] not in active:
+				for i in range(len(delet)):
+					if delet[i] > 0:
+						alpha[i] = 0
+
+				for i in range(len(ins)):
+					if ins[i] > 0:
+						alpha[i] = 0
+
+			elif values[0] not in active and values[1] in active:
+				for i in range(len(delet)):
+					if delet[i] > 0:
+						alpha[i] = 0
+					
+						
+			elif values[0] in active and values[1] not in active:
+				for i in range(len(ins)):
+					if ins[i] > 0:
+						alpha[i] = 0
+					
+			else:
+				pass
+
+
+		source.change.emit()
+
+	checkbox = CheckboxGroup(labels=["Deletion sites", "Insertion sites", "Substitution"], active=[0,1,2], callback=CustomJS.from_py_func(checkbox_callback))
+	
+	return checkbox
 
 #------------------------------------------------------------------------------
 
