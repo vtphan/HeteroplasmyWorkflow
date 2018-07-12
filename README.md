@@ -1,4 +1,6 @@
-# Heteroplasmy Workflow
+# icHET: Exploratory Visualization of Cytoplasmic Heteroplasmy
+
+## Heteroplasmy Workflow
 
 A workflow (designed to be run on high-performance clusters) for detecting heteroplasmies across multiple genomic samples.
 
