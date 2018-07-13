@@ -45,7 +45,7 @@ def filter_csvfile(csvfile, score_threshold, percentage_threshold):
 		reader = csv.DictReader(f)
 		for row in reader:
 			pos, score = int(row['Pos']), float(row['Score'])
-			
+
 			a, c, g, t, d, i, total = float(row['A']), float(row['C']), float(row['G']), float(row['T']), float(row['D']), float(row['I']), float(row['Total'])
 			percentages = sorted([a/total, c/total, g/total, t/total, d/total, i/total])
 			highest, second_highest = percentages[5], percentages[4]
@@ -87,6 +87,7 @@ def scatter_plot(ids, positions):
 				idx = profile[0].index(cur_id)
 				item = profile[1][idx]
 				# print('%d,%d,%s' % (pos,i+1,cur_id))
+				# print(item)
 				# print(profile)
 				items.append([pos,i+1,cur_id,item[3],item[4],item[5],item[6],item[7],item[8],item[9],item[10],item[11],item[12], item[13], item[14], item[15],item[16],0])
 

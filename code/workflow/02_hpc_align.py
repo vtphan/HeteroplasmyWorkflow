@@ -93,7 +93,7 @@ for line in read_file:
     else:
         cmd = 'bwa mem %s %s %s' % (ref,read1,read2)
         try:
-            output = subprocess.check_call(cmd, shell=True, stdout=open(out_sam, 'w'))
+            output = subprocess.check_output(cmd, shell=True, stdout=open(out_sam, 'w'))
             # output.wait()
         except:
             no_error = False
@@ -103,23 +103,24 @@ for line in read_file:
     print("Alignment time for ", line.strip(), ": ", alignment_time-start_time)
 
     # 02_filter_by_samtools
+    # select reads that mapped to chloroplast and mitochondria
     if os.path.exists(out_filtered_sam):
         print('Alignment might have been filtered already.  Skip samtools.')
     else:
         print("Filter bwa's output")
         cmd = 'samtools view -f 2 -q %s %s' % (alignment_quality , out_sam)
         try:
-            output = subprocess.check_call(cmd, shell=True, stdout=open(out_filtered_sam, 'w'))
+            output = subprocess.check_output(cmd, shell=True, stdout=open(out_filtered_sam, 'w'))
             # output.wait()
         except:
             no_error = False
             log_error(cmd, output, sys.exc_info())
 
-    # select reads that mapped to chloroplast and mitochondria
+
     print('Filter alignments for chloroplast and mitochondrial genomes.')
     cmd = 'python filter_samfiles_cp_mt.py %s %s %s %s' %(out_filtered_sam, OUTPUT_DIR, chloroplast, mitochondria)
     try:
-        output = subprocess.check_call(cmd, shell=True)
+        output = subprocess.check_output(cmd, shell=True)
         # output.wait()
     except:
         no_error = False
