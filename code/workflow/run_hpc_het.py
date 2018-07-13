@@ -86,18 +86,20 @@ with open(bash_score, 'w') as bf:
             read1 = os.path.join(READS_DIR, line.strip() + '_1.fastq')
             read2 = os.path.join(READS_DIR, line.strip() + '_2.fastq')
             name = read1.split('/')[-1].split('_R1')[0]
-            out_csv = os.path.join(csv_dir, name+'_f2_q'+alignment_quality+'.csv')
-            out_filtered_sam = os.path.join(OUTPUT_DIR, name+'_f2_q'+alignment_quality+'.sam')
+            # out_csv = os.path.join(csv_dir, name+'_f2_q'+alignment_quality+'.csv')
+            out_csv = os.path.join(csv_dir, name+'_f2_F0x900_q'+alignment_quality+'.csv')
+            # out_filtered_sam = os.path.join(OUTPUT_DIR, name+'_f2_q'+alignment_quality+'.sam')
+            out_filtered_sam = os.path.join(OUTPUT_DIR, name+'_f2_F0x900_q'+alignment_quality+'.sam')
             no_error = True
 
             output = 'None'
 
-            bf.write('echo "Calculate heteroplasmy scores"\n')
+            bf.write('echo "Calculate heteroplasmy scores "'+name+'\n')
             cmd = 'python %s %s %s %s > %s' % (heteroplasmy_likelihood,ref,out_filtered_sam,annotation, out_csv)
             bf.write(cmd+'\n')
             
             # 04_sort_sites
-            bf.write('echo "Sort scores"\n')
+            bf.write('echo "Sort scores "'+name+'\n')
             cmd = 'python %s %s' % (sort_candidates,out_csv)
             bf.write(cmd+'\n')
      
