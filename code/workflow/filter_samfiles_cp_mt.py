@@ -15,7 +15,7 @@ def filter_reads_for_cp_mt(filtered_sam, SAMdir, chloroplast, mitochondria):
 		outfilename = filtered_sam.split("/")[-1]
 
 		if chloroplast != 'None':
-			cp_out = os.path.join(SAMdir, 'cp')
+			cp_out = os.path.join(SAMdir, 'chloroplast')
 			if not os.path.exists(cp_out):
 				os.makedirs(cp_out)
 			cp_outfile = os.path.join(cp_out, outfilename)
@@ -23,7 +23,7 @@ def filter_reads_for_cp_mt(filtered_sam, SAMdir, chloroplast, mitochondria):
 					
 		
 		if mitochondria != 'None':
-			mt_out = os.path.join(SAMdir, 'mt')
+			mt_out = os.path.join(SAMdir, 'mitochondria')
 			if not os.path.exists(mt_out):
 				os.makedirs(mt_out)
 			mt_outfile = os.path.join(mt_out, outfilename)
