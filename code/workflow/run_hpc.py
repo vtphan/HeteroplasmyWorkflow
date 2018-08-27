@@ -169,12 +169,12 @@ print("Index time: ", index_time-start_time)
 # 02_filter_by_samtools
 ###########################################################
 if chloroplast != 'None':
-    cp_out = os.path.join(OUTPUT_DIR, 'cp')
+    cp_out = os.path.join(OUTPUT_DIR, 'chloroplast')
     if not os.path.exists(cp_out):
         os.makedirs(cp_out)
 
 if mitochondria != 'None':
-    mt_out = os.path.join(OUTPUT_DIR, 'mt')
+    mt_out = os.path.join(OUTPUT_DIR, 'mitochondria')
     if not os.path.exists(mt_out):
         os.makedirs(mt_out)
 
@@ -230,20 +230,20 @@ while check:
             check = False
     else:
         check = False
-   
+
 align_filter_time = time.time()
 print("Alignment and Filtering time:", align_filter_time-index_time)
 
+script = "run_hpc"
 # ###########################################################
 # run partial workflow for chloroplast
 # ###########################################################
-
 if chloroplast != 'None':
-    partial_workflow = os.path.join(SCRIPT_DIR, 'partial_workflow.py')
+    partial_workflow = os.path.join(SCRIPT_DIR, 'run_hpc_het.py')
     check_exist('ls', partial_workflow)
-    cp_out = os.path.join(OUTPUT_DIR,'cp')
-    params = [cp_ref, cp_annotation, dist, sys.argv[2], 'chloroplast'+output_info+'.html', str(random_id), READS_DIR, cp_out, LOG_FILE, alignment_quality]
-    cmd = 'python partial_workflow.py %s' %(" ".join(params))
+    cp_out = os.path.join(OUTPUT_DIR,'chloroplast')
+    params = [cp_ref, cp_annotation, dist, sys.argv[2], 'chloroplast'+output_info+'.html', str(random_id), READS_DIR, cp_out, LOG_FILE, alignment_quality, score_threshold, percentage_threshold, script]
+    cmd = 'python run_hpc_het.py %s' %(" ".join(params))
     try:
         output = subprocess.check_call(cmd, shell=True)
     except:
@@ -256,11 +256,11 @@ else:
 # run partial workflow for mitochondria
 # ###########################################################
 if mitochondria != 'None':
-    partial_workflow = os.path.join(SCRIPT_DIR, 'partial_workflow.py')
+    partial_workflow = os.path.join(SCRIPT_DIR, 'run_hpc_het.py')
     check_exist('ls', partial_workflow)
-    mt_out = os.path.join(OUTPUT_DIR,'mt')
-    params = [mt_ref, mt_annotation, dist, sys.argv[2], 'mitochondria'+output_info+'.html', str(random_id), READS_DIR, mt_out, LOG_FILE, alignment_quality]
-    cmd = 'python partial_workflow.py %s' %(" ".join(params))
+    mt_out = os.path.join(OUTPUT_DIR,'mitochondria')
+    params = [mt_ref, mt_annotation, dist, sys.argv[2], 'mitochondria'+output_info+'.html', str(random_id), READS_DIR, mt_out, LOG_FILE, alignment_quality, score_threshold, percentage_threshold, script]
+    cmd = 'python run_hpc_het.py %s' %(" ".join(params))
     try:
         output = subprocess.check_call(cmd, shell=True)
     except:
