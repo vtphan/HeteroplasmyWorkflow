@@ -25,26 +25,10 @@ You can use Anaconda distribution for easier installation.
 		- Make executable if needed:  ```chmod 755 SampleFileName.sh```
 		- Run installer script: ```./SAMPLEFILENAME.sh```
 
-2. Install required packaged:
-	- Biopython : ```conda install -c anaconda biopython```
-	- Bokeh : ```conda install -c bokeh bokeh```
-	- Flexx : ```conda install -c bokeh flexx```
+2. Install required packages:
+	
+	- Run ```sh install_packages.sh```
 
-3. Install BWA, Samtools:
-	- Set the proper channels to install bioconda:
-
-	```
-	conda config --add channels defaults
-	conda config --add channels conda-forge
-	conda config --add channels bioconda
-	```
-
-	- Install BWA, Samtools and Bzip2
-	```
-	conda install bwa
-	conda install samtools
-	conda install bzip2
-	```
 
 #### CONFIGURATION: 
 You need to specify paths to your data in a configuration file. See config.txt for example.
