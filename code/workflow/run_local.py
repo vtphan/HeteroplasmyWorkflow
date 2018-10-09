@@ -60,6 +60,7 @@ ref = config.get('config', 'REF')
 READS_DIR = config.get('config', 'READS_DIR')
 OUTPUT_DIR = config.get('config', 'OUTPUT_DIR')
 LOG_FILE = config.get('config', 'LOG_FILE')
+cutoff = config.get('config', 'cutoff')
 cp_ref = config.get('config', 'cp_ref')
 mt_ref = config.get('config', 'mt_ref')
 cp_annotation = config.get('config', 'cp_annotation')
@@ -128,14 +129,18 @@ else:
         print("\nOutput exists! Please change the OUTPUT_DIR in config file and re-run the program.")
         exit()
     else:
-        cmd = 'rm -rf '+OUTPUT_DIR
-        try:
-            output = subprocess.check_call(cmd, shell=True)
-        except:
-            no_error = False
-            log_error(cmd, output, sys.exc_info())
-        os.makedirs(OUTPUT_DIR)
-        print("\nOverwrite OUTPUT_DIR.")
+        ans = input("Remove all existing files in "+OUTPUT_DIR+"? (Y to remove, N to re-use these files)")
+        if ans in ['y','Y','Yes','yes']:
+            cmd = 'rm -rf '+OUTPUT_DIR
+            try:
+                output = subprocess.check_call(cmd, shell=True)
+            except:
+                no_error = False
+                log_error(cmd, output, sys.exc_info())
+            os.makedirs(OUTPUT_DIR)
+            print("\nOverwrite OUTPUT_DIR.")
+        if ans in ['n','N','No','no']:
+            print("The workflow will re-use the existing files in "+OUTPUT_DIR+".")
 
 start_time = time.time()
 ###########################################################
@@ -177,24 +182,31 @@ for line in reads:
     out_filtered_sam = os.path.join(OUTPUT_DIR, name + '_f2_F0x900_q' + alignment_quality + '.sam')
 
     # 02_alignment
-    cmd = 'bwa mem %s %s %s' % (ref, read1, read2)
-    try:
-        output = subprocess.check_call(cmd, shell=True, stdout=open(out_sam, 'w'))
-    except:
-        no_error = False
-        log_error(cmd, output, sys.exc_info())
+    if os.path.exists(out_sam):
+        print('Alignment might have been done already.  Skip bwa.')
+    else:
+        cmd = 'bwa mem %s %s %s' % (ref, read1, read2)
+        try:
+            output = subprocess.check_call(cmd, shell=True, stdout=open(out_sam, 'w'))
+        except:
+            no_error = False
+            log_error(cmd, output, sys.exc_info())
 
     alignment_time = time.time()
     print("Alignment time for ", line.strip(), ": ", alignment_time - start_time)
 
     # 02_filter_by_samtools
-    print("Filter bwa's output")
-    cmd = 'samtools view -f 2 -q %s %s' % (alignment_quality, out_sam)
-    try:
-        ouptut = subprocess.check_call(cmd, shell=True, stdout=open(out_filtered_sam, 'w'))
-    except:
-        no_error = False
-        log_error(cmd, output, sys.exc_info())
+    # only keep primary alignments
+    if os.path.exists(out_filtered_sam):
+        print('Alignment might have been filtered already.  Skip samtools.')
+    else:
+        print("Filter bwa's output")
+        cmd = 'samtools view -f 2 -F 0x900 -q %s %s' % (alignment_quality, out_sam)
+        try:
+            ouptut = subprocess.check_call(cmd, shell=True, stdout=open(out_filtered_sam, 'w'))
+        except:
+            no_error = False
+            log_error(cmd, output, sys.exc_info())
 
     print('Filter alignments for chloroplast and mitochondrial genomes.')
     cmd = 'python filter_samfiles_cp_mt.py %s %s %s %s' %(out_filtered_sam, OUTPUT_DIR, chloroplast, mitochondria)
@@ -221,8 +233,17 @@ if chloroplast != 'None':
     partial_workflow = os.path.join(SCRIPT_DIR, 'run_hpc_het.py')
     check_exist('ls', partial_workflow)
     cp_out = os.path.join(OUTPUT_DIR,'chloroplast')
-    params = [cp_ref, cp_annotation, dist, sys.argv[2], 'chloroplast'+output_info+'.html', str(random_id), READS_DIR, cp_out, LOG_FILE, alignment_quality, score_threshold, percentage_threshold, script]
-    cmd = 'python run_hpc_het.py %s' %(" ".join(params))
+
+    # make temp parameters file
+    param_file = os.join.path(OUTPUT_DIR, "temp_params.txt")
+    params = [cp_ref, cp_annotation, dist, sys.argv[2], 'chloroplast'+output_info+'.html', str(random_id), READS_DIR, cp_out, LOG_FILE, alignment_quality, score_threshold, percentage_threshold, script, str(cutoff)]
+    f = open(param_file,'w')
+    for item in params:
+        f.write(item+'\n')
+    f.close()
+
+    # cmd = 'python run_hpc_het.py %s' %(" ".join(params))
+    cmd = 'python run_hpc_het.py temp_params.txt'
     try:
         output = subprocess.check_call(cmd, shell=True)
     except:
@@ -238,8 +259,18 @@ if mitochondria != 'None':
     partial_workflow = os.path.join(SCRIPT_DIR, 'run_hpc_het.py')
     check_exist('ls', partial_workflow)
     mt_out = os.path.join(OUTPUT_DIR,'mitochondria')
-    params = [mt_ref, mt_annotation, dist, sys.argv[2], 'mitochondria'+output_info+'.html', str(random_id), READS_DIR, mt_out, LOG_FILE, alignment_quality, score_threshold, percentage_threshold, script]
-    cmd = 'python run_hpc_het.py %s' %(" ".join(params))
+    params = [mt_ref, mt_annotation, dist, sys.argv[2], 'mitochondria'+output_info+'.html', str(random_id), READS_DIR, mt_out, LOG_FILE, alignment_quality, score_threshold, percentage_threshold, script, cutoff]
+    
+    # make temp parameters file
+    param_file = os.join.path(OUTPUT_DIR, "temp_params.txt")
+    params = [cp_ref, cp_annotation, dist, sys.argv[2], 'chloroplast'+output_info+'.html', str(random_id), READS_DIR, cp_out, LOG_FILE, alignment_quality, score_threshold, percentage_threshold, script, str(cutoff)]
+    f = open(param_file,'w')
+    for item in params:
+        f.write(item+'\n')
+    f.close()
+
+    # cmd = 'python run_hpc_het.py %s' %(" ".join(params))
+    cmd = 'python run_hpc_het.py temp_params.txt'
     try:
         output = subprocess.check_call(cmd, shell=True)
     except:

@@ -5,8 +5,8 @@ import sys
 import annotate
 
 # ref and read must have same length
-def diff(ref, ref_pos, read, read_pos):
-	return [ (i+read_pos, read[i], i+ref_pos, ref[i]) for (i,base) in enumerate(ref) if base!=read[i] ]
+def diff(ref, ref_pos, read, read_pos, cutoff):
+	return [ (i+read_pos, read[i], i+ref_pos, ref[i]) for (i,base) in enumerate(ref) if (base!=read[i] and (i > cutoff) and (i < len(read)-cutoff))  ]
 
 def reverse_complement(s):
 	rc = list(s)
@@ -18,7 +18,7 @@ def reverse_complement(s):
 	return ''.join(rc)
 
 # -----------------------------------------------------------
-def collect_info_alleles(cigar, ref, read, reference_pos, phred, profile={}):
+def collect_info_alleles(cigar, ref, read, reference_pos, phred, profile={}, cutoff):
 	break_points = [ i[0] for i in enumerate(cigar) if i[1].isalpha() ]
 	start, ref_pos, read_pos = 0, 0, 0
 	count = 0
@@ -181,7 +181,10 @@ def analyze_positions(profile, ANNOTATION_FILE):
 
 # -----------------------------------------------------------
 # Detect heteroplasmy candidates
-def parse_sam_file(filename, ref_seq, annotation_file):
+#
+# cutoff is the number of base skipped and two ends of the reads to avoid false positive caused by indel.
+# -----------------------------------------------------------
+def parse_sam_file(filename, ref_seq, annotation_file, cutoff):
 	profile = {}
 	count = 0
 	# 1. Detect heteroplasmy sites.  Update profile of alleles that are different from ref.
@@ -192,7 +195,7 @@ def parse_sam_file(filename, ref_seq, annotation_file):
 				items = line.split('\t')
 				sam_flag, ref_pos, cigar, read, phred = int(items[1]), int(items[3])-1, items[5], items[9], items[10]
 				seq = extract_ref_seq(ref_seq, cigar, ref_pos, sam_flag)
-				collect_info_alleles(cigar, seq, read, ref_pos, phred, profile)
+				collect_info_alleles(cigar, seq, read, ref_pos, phred, profile,cutoff)
 
 	# 2. Update profiles of alleles that are the same as ref.
 	# Note: have to do this because reads with bases matching reference bases might be missed
@@ -209,8 +212,8 @@ def parse_sam_file(filename, ref_seq, annotation_file):
 
 
 
-if len(sys.argv) != 4:
-	print("Usage:", sys.argv[0] + "  reference.fasta  alignment_output.sam  annotation_file")
+if len(sys.argv) != 5:
+	print("Usage:", sys.argv[0] + "  reference.fasta alignment_output.sam annotation_file cutoff")
 else:
 	record = SeqIO.read(sys.argv[1], "fasta")
-	parse_sam_file(sys.argv[2], record.seq, sys.argv[3])
+	parse_sam_file(sys.argv[2], record.seq, sys.argv[3], sys.argv[4])

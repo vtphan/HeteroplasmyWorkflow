@@ -82,7 +82,7 @@ for line in read_file:
     
     name = read1.split('/')[-1].split('_R1')[0]
     out_sam = os.path.join(OUTPUT_DIR, name+'.sam')
-    out_filtered_sam = os.path.join(OUTPUT_DIR, name+'_f2_q'+alignment_quality+'.sam')
+    out_filtered_sam = os.path.join(OUTPUT_DIR, name+'_f2_F0x900_q'+alignment_quality+'.sam')
     
 
     output = 'None'
@@ -104,11 +104,12 @@ for line in read_file:
 
     # 02_filter_by_samtools
     # select reads that mapped to chloroplast and mitochondria
+    # only keep primary alignment
     if os.path.exists(out_filtered_sam):
         print('Alignment might have been filtered already.  Skip samtools.')
     else:
         print("Filter bwa's output")
-        cmd = 'samtools view -f 2 -q %s %s' % (alignment_quality , out_sam)
+        cmd = 'samtools view -f 2 -F 0x900 -q %s %s' % (alignment_quality , out_sam)
         try:
             output = subprocess.check_output(cmd, shell=True, stdout=open(out_filtered_sam, 'w'))
             # output.wait()

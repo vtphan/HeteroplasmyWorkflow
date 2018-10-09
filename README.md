@@ -25,7 +25,7 @@ You can use Anaconda distribution for easier installation.
 		- Make executable if needed:  ```chmod 755 SampleFileName.sh```
 		- Run installer script: ```./SAMPLEFILENAME.sh```
 
-2. Install required packages:
+2. Install required packages (on Linux):
 	
 	- Run ```sh install_packages.sh```
 

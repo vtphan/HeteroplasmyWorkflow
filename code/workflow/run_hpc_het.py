@@ -22,23 +22,45 @@ def log_final(no_error, argv):
     with open(log_output, 'a') as f:
         f.write('%s %s %s %s\n' % (no_error, argv[0], argv[1], str(datetime.now())))
 
-if len(sys.argv) != 14:
-    print('Usage: python', sys.argv[0], 'ref', 'annotation', 'dist', 'read_file', 'output.html', 'random_id', 'READS_DIR', 'output_dir', 'log_file', 'alignment_quality', 'score_threshold', 'percentage_threshold', 'script')
+if len(sys.argv) != 15:
+    print('Usage: python', sys.argv[0], 'ref', 'annotation', 'dist', 'read_file', 'output.html', 'random_id', 'READS_DIR', 'output_dir', 'log_file', 'alignment_quality', 'score_threshold', 'percentage_threshold', 'script', 'cutoff')
     sys.exit(0)
 
-ref = sys.argv[1]
-annotation = sys.argv[2]
-dist = sys.argv[3]
-read_file = sys.argv[4]
-out_html_name = sys.argv[5]
-random_id = sys.argv[6]
-READS_DIR = sys.argv[7]
-OUTPUT_DIR = sys.argv[8]
-LOG_FILE = sys.argv[9]
-alignment_quality = sys.argv[10]
-score_threshold = sys.argv[11]
-percentage_threshold = sys.argv[12]
-script = sys.argv[13]
+# ref = sys.argv[1]
+# annotation = sys.argv[2]
+# dist = sys.argv[3]
+# read_file = sys.argv[4]
+# out_html_name = sys.argv[5]
+# random_id = sys.argv[6]
+# READS_DIR = sys.argv[7]
+# OUTPUT_DIR = sys.argv[8]
+# LOG_FILE = sys.argv[9]
+# alignment_quality = sys.argv[10]
+# score_threshold = sys.argv[11]
+# percentage_threshold = sys.argv[12]
+# script = sys.argv[13]
+# cutoff = sys.argv[14]
+
+param_file = sys.argv[1]
+
+with open(param_file,'r') as f:
+    for line in f:
+        params.append(line.strip())
+
+ref = params[0]
+annotation = params[1]
+dist = params[2]
+read_file = params[3]
+out_html_name = params[4]
+random_id = params[5]
+READS_DIR = params[6]
+OUTPUT_DIR = params[7]
+LOG_FILE = params[8]
+alignment_quality = params[9]
+score_threshold = params[10]
+percentage_threshold = params[11]
+script = params[12]
+cutoff = params[13]
 
 
 # read version
@@ -97,7 +119,7 @@ if script == "run_hpc":
                 output = 'None'
 
                 bf.write('echo "Calculate heteroplasmy scores "'+name+'\n')
-                cmd = 'python %s %s %s %s > %s' % (heteroplasmy_likelihood,ref,out_filtered_sam,annotation, out_csv)
+                cmd = 'python %s %s %s %s %s > %s' % (heteroplasmy_likelihood,ref,out_filtered_sam,annotation, out_csv, cutoff)
                 bf.write(cmd+'\n')
                 
                 # 04_sort_sites
