@@ -37,7 +37,7 @@ You need to specify paths to your data in a configuration file. See config.txt f
 
 1. Required inputs:
 
-- READS_DIR: path to reads directory.
+- READS_DIR: path to reads directory containing FASTQ/FQ file(s).
 - REF: path to reference genomes. This is the concatenated of all genomes (nuclear DNA, mitochondrial genome, chloroplast genome).
 - LOG_FILE: path to log file.
 - OUTPUT_DIR: path to output directory.
