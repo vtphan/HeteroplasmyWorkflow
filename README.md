@@ -4,6 +4,10 @@
 
 A workflow (designed to be run on high-performance clusters) for detecting heteroplasmies across multiple genomic samples.
 
+<p align="center">
+<img src="HeteroplasmyWorkflow.png" width="400px" />
+</p>
+
 #### REQUIREMENTS:
 1. Python 3 packages:
 	- Biopython
