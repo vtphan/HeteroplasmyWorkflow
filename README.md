@@ -2,7 +2,7 @@
 
 ## Heteroplasmy Workflow
 
-A workflow (designed to be run on high-performance clusters) for detecting heteroplasmies across multiple genomic samples.
+icHet is a workflow for visualizing and detecting heteroplasmies across multiple genomic samples. It is designed to take advantage of high-performance clusters.
 
 <p align="center">
 <img src="HeteroplasmyWorkflow.png" width="400px" />
