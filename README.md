@@ -5,7 +5,7 @@
 icHet is a workflow for visualizing and detecting heteroplasmies across multiple genomic samples. It is designed to take advantage of high-performance clusters.
 
 <p align="center">
-<img src="HeteroplasmyWorkflow.png" width="400px" />
+<img src="HeteroplasmyWorkflow1.png" width="400px" />
 </p>
 
 #### REQUIREMENTS:
