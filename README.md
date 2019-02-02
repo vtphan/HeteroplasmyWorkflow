@@ -1,5 +1,9 @@
 # icHET: Exploratory Visualization of Cytoplasmic Heteroplasmy
 
+## Heteroplasmy Visualization
+
+Presently, visualization of heteroplasmies is available for [Daucus carota](https://github.com/vtphan/HeteroplasmyWorkflow/tree/master/Daucus_carota).
+
 ## Heteroplasmy Workflow
 
 icHet is a workflow for visualizing and detecting heteroplasmies across multiple genomic samples. It is designed to take advantage of high-performance clusters.
