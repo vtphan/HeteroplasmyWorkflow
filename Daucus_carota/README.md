@@ -2,4 +2,4 @@ In this folder, you will find visualizations of potential heteroplasmic sites in
 
 These browser-based interactive visualizations are created by icHET. They let users explore potential heteroplasmic sites across all samples. Each site is color coded based on its major allele: red (A), blue (C), green (G), purple (T), and orange (deletion); a heteroplasmic insertion is shown when the site is hovered over. Color intensity represents the variant's major allele frequency.
 
-*Currently, the visualization can not be viewed on github, please download the above HTML files and try on your machine.*
+**Currently, the visualization can not be viewed on github, please download the above HTML files and try on your machine.**
