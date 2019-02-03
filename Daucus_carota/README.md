@@ -8,7 +8,7 @@ These browser-based interactive visualizations are created by icHET. They let us
 - Right click on the *Download* button, then select *Save link as...* to download the HTML file to your computer.
 
 <p align="center">
-<img src="Instruction.png" width="400px" />
+<img src="Instruction.png"/>
 </p>
 
 - Go to the directory you saved the file, double click on the file to open it.
