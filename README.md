@@ -2,7 +2,7 @@
 
 ## Heteroplasmy Visualization
 
-Presently, visualization of heteroplasmies is available for [Daucus carota](https://github.com/vtphan/HeteroplasmyWorkflow/tree/master/Daucus_carota).
+Presently, visualization of heteroplasmies is available for [*Daucus carota*](https://github.com/vtphan/HeteroplasmyWorkflow/tree/master/Daucus_carota).
 
 ## Heteroplasmy Workflow
 
