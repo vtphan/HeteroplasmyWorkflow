@@ -20,7 +20,7 @@ icHet is a workflow for visualizing and detecting heteroplasmies across multiple
 
 2. Other tools:
 	- Bwa (http://bio-bwa.sourceforge.net/)
-	- Samtools (http://samtools.sourceforge.net/)
+	- SAMtools (http://samtools.sourceforge.net/)
 
 #### INSTALL REQUIRED PACKAGES VIA ANACONDA:
 
