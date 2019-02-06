@@ -3,7 +3,8 @@
 # Install biopython, bokeh, flexx
 conda install -y -c anaconda biopython
 conda install -y -c bokeh bokeh
-conda install -y -c bokeh flexx
+# conda install -y -c bokeh flexx
+conda install -y -c conda-forge flexx
 
 # Set the proper channels to install 
 conda config --add channels defaults
