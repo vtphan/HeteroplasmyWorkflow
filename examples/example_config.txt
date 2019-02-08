@@ -1,0 +1,15 @@
+[config]
+READS_DIR = /home/user/test_reads/
+
+REF = /home/user/Reference/LNRQ01_1_carrotgenome.fasta
+cp_ref = /home/user/Reference/DCARv2_PT_plastid.fasta
+cp_annotation = /home/user/Annotations/NC_008325.1_chloroplast.csv
+mt_ref = /home/user/Reference/DCARv2_MT_mitochondrial.fasta
+mt_annotation = /home/user/Annotations/NC_017855.1_mitochondria.csv
+
+LOG_FILE = /home/user/test_log.txt
+
+OUTPUT_DIR = /home/user/output_test
+
+mitochondria = LNRQ01000010.1
+chloroplast = LNRQ01000011.1
