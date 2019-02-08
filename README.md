@@ -60,6 +60,9 @@ It is not neccessary to use single or double quote for these paths. The workflow
 
 If there are no input sequence IDs for mitochondria or chloroplast, the program terminates. 
 
+See [example_config.txt](https://github.com/vtphan/HeteroplasmyWorkflow/blob/master/examples/example_config.txt) for example of config file.
+
+
 2. Optional inputs:
 - DIST: name of distance function used to compute conservation scores of heteroplasmic sites (hellinger or consine). Default = hellinger distance.
 - alignment_quality: quality threshold for SAMtools to filter alignments. Default = 20.
