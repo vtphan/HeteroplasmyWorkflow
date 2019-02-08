@@ -45,7 +45,7 @@ You need to specify paths to your data in a configuration file. See config.txt f
 
 1. Required inputs:
 
-- READS_DIR: path to reads directory containing FASTQ/FQ file(s).
+- READS_DIR: path to reads directory containing FASTQ/FQ file(s). Reads must be paired-end reads and each pair must have suffix (\_1.fastq and \_2.fastq) or (\_1.fq or \_2.fq).
 - REF: path to reference genomes. This is the concatenated of all genomes (nuclear DNA, mitochondrial genome, chloroplast genome).
 - LOG_FILE: path to log file.
 - OUTPUT_DIR: path to output directory.
@@ -73,6 +73,9 @@ See [example_config.txt](https://github.com/vtphan/HeteroplasmyWorkflow/blob/mas
 ##### Readids.txt:
 Text file contains all input reads ID you want to run. Each line is reserved for only one ID. The output plots the samples by the ordering of read names in this file.
 
+Reads should be paired-end reads, and only the SampleID needs to be specified in the readids.txt file. For example, if you have sample SRR2146923 with a pair of reads named SRR2146923_1.fastq and SRR2146923_2.fastq, you only have to specify SRR2146923 in the readids.txt file.
+
+See [example_read_ids.txt](https://github.com/vtphan/HeteroplasmyWorkflow/blob/master/examples/example_read_ids.txt) for example of read IDs file.
 
 #### HOW TO RUN:
 
