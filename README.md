@@ -33,9 +33,37 @@ You can use Anaconda distribution for easier installation.
 		- Make executable if needed:  ```chmod 755 SampleFileName.sh```
 		- Run installer script: ```./SAMPLEFILENAME.sh```
 
-2. Install required packages (on Linux):
+2. Install required packages:
 	
-	- Run ```sh install_packages.sh```
+	- On Linux/Max: run ```sh install_packages.sh```
+	- On Windows: run these commands
+	```
+	conda install -y -c anaconda biopython
+	conda install -y -c bokeh bokeh
+	conda install -y -c conda-forge flexx
+	conda config --add channels defaults
+	conda config --add channels conda-forge
+	conda config --add channels bioconda
+	conda install -y bwa
+	conda install -y samtools
+	conda install -y bzip2
+	```
+		
+
+**Note**
+
+After installing SAMtools via anaconda, you may have this error:
+
+```
+samtools: error while loading shared libraries: libcrypto.so.1.0.0: cannot open shared object file: No such file or directory
+```
+
+Here is the suggested easiest way to fix this error: 
+
+	- Go to *anaconda3 library* directory: ```cd $HOME/anaconda3/lib``` (assume that your anaconda is installed in $HOME/anaconda)
+	- Make a copy of *libcrypto.so.1.1.1* and rename it to "libcrypto.so.1.0.0"
+	
+There are many other ways to fix this error, for example ([SAMtools dependency in wrong version](https://github.com/bioconda/bioconda-recipes/issues/12100)), please try them to fix the error.
 
 
 #### CONFIGURATION: 
