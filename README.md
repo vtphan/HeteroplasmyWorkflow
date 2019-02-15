@@ -61,8 +61,10 @@ samtools: error while loading shared libraries: libcrypto.so.1.0.0: cannot open 
 Here is the suggested easiest way to fix this error: 
 
 	- Go to *anaconda3 library* directory: (assume that your anaconda is installed in $HOME/anaconda)
+	
 	```cd $HOME/anaconda3/lib``` 
-	- Make a copy of *libcrypto.so.1.1.1* and rename it to "libcrypto.so.1.0.0"
+	
+	- Make a copy of *libcrypto.so.1.1.1* and rename it to *libcrypto.so.1.0.0*
 	
 There are many other ways to fix this error, for example ([SAMtools dependency in wrong version](https://github.com/bioconda/bioconda-recipes/issues/12100)), please try them to fix the error.
 
