@@ -1,4 +1,4 @@
-# icHET: Exploratory Visualization of Cytoplasmic Heteroplasmy
+# icHET: Interactive Visualization of Cytoplasmic Heteroplasmy
 
 ## Heteroplasmy Visualization
 
