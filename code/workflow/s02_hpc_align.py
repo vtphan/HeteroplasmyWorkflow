@@ -5,6 +5,7 @@ import datetime
 from configparser import ConfigParser
 import time
 
+
 def check_exist(cmd, thing):
     try:
         subprocess.check_output('%s %s' % (cmd, thing), shell=True)
@@ -12,10 +13,12 @@ def check_exist(cmd, thing):
         print("Error: did not find %s in path." % thing)
         sys.exit(0)
 
+
 def log_error(cmd, exec_output, exec_error):
         with open(LOG_FILE, 'a') as f:
                 f.write('time: %s\ncmd: %s\noutput: %s\nexec error:%s\n' % (str(datetime.datetime.now()), cmd, exec_output, exec_error))
-                
+
+
 def log_final(no_error, argv):
     log_output = os.path.join(SCRIPT_DIR, 'log_align_analyze_sort.txt')
     with open(log_output, 'a') as f:
@@ -27,9 +30,9 @@ def process(*args, **kwargs):
     read_ID = kwargs['read_ID']
     print("\nConfig file:", config_file)
     print("Processing read", read_ID)
-    #--------------------------------------------------------------
+    # --------------------------------------------------------------
     # read config file
-    #--------------------------------------------------------------
+    # --------------------------------------------------------------
     config = ConfigParser()
     config.readfp(open('defaults.ini'))
     default_alignment_quality = config.get('defaults', 'alignment_quality')
@@ -61,7 +64,7 @@ def process(*args, **kwargs):
     except:
         mitochondria = default_mitochondria
 
-    #--------------------------------------------------------------
+    # --------------------------------------------------------------
 
     SCRIPT_DIR = os.getcwd()
     # read_file = open(sys.argv[2])
@@ -77,25 +80,24 @@ def process(*args, **kwargs):
         os.makedirs(OUTPUT_DIR)
 
     start_time = time.time()
-    # for line in read_file:
     read1 = os.path.join(READS_DIR, read_ID + '_1.fastq')
     read2 = os.path.join(READS_DIR, read_ID + '_2.fastq')
     check_exist('ls', read1)
     check_exist('ls', read2)
-    
+
     name = read1.split('/')[-1].split('_R1')[0]
-    out_sam = os.path.join(OUTPUT_DIR, name+'.sam')
+    out_sam = os.path.join(OUTPUT_DIR, name + '.sam')
     # out_filtered_sam = os.path.join(OUTPUT_DIR, name+'_f2_q'+alignment_quality+'.sam')
-    out_filtered_sam = os.path.join(OUTPUT_DIR, name+'_f2_F0x900_q'+alignment_quality+'.sam')
-    
+    out_filtered_sam = os.path.join(OUTPUT_DIR, name + '_f2_F0x900_q' + alignment_quality + '.sam')
+
 
     output = 'None'
 
-    # 01_alignment      
+    # 01_alignment
     if os.path.exists(out_sam):
         print('Alignment might have been done already.  Skip bwa.')
     else:
-        cmd = 'bwa mem %s %s %s' % (ref,read1,read2)
+        cmd = 'bwa mem %s %s %s' % (ref, read1, read2)
         try:
             output = subprocess.check_call(cmd, shell=True, stdout=open(out_sam, 'w'))
             # output.wait()
@@ -105,7 +107,7 @@ def process(*args, **kwargs):
 
     alignment_time = time.time()
     # print("Alignment time for ", line.strip(), ": ", alignment_time-start_time)
-    print("Alignment time for ", read_ID, ": ", alignment_time-start_time)
+    print("Alignment time for ", read_ID, ": ", alignment_time - start_time)
 
     # 02_filter_by_samtools
     if os.path.exists(out_filtered_sam):
@@ -123,7 +125,7 @@ def process(*args, **kwargs):
 
     # select reads that mapped to chloroplast and mitochondria
     print('Filter alignments for chloroplast and mitochondrial genomes.')
-    cmd = 'python filter_samfiles_cp_mt.py %s %s %s %s' %(out_filtered_sam, OUTPUT_DIR, chloroplast, mitochondria)
+    cmd = 'python filter_samfiles_cp_mt.py %s %s %s %s' % (out_filtered_sam, OUTPUT_DIR, chloroplast, mitochondria)
     try:
         output = subprocess.check_call(cmd, shell=True)
         # output.wait()
@@ -133,15 +135,15 @@ def process(*args, **kwargs):
 
     filter_time = time.time()
     # print("Filter time for ", line.strip(), ": ", filter_time-alignment_time)
-    print("Filter time for ", read_ID, ": ", filter_time-alignment_time)
+    print("Filter time for ", read_ID, ": ", filter_time - alignment_time)
 
-    print ("Finished %s. " %(line))
+    print ("Finished %s. " % (line))
 
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
-        print('Usage: python', sys.argv[0], 'config_file.txt','read_ID')
+        print('Usage: python', sys.argv[0], 'config_file.txt', 'read_ID')
         sys.exit(0)
-    
+
     kw = {'config_file': sys.argv[1], 'read_ID': sys.argv[2]}
-    main(kw)
+    process(kw)

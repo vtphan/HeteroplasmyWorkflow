@@ -2,10 +2,10 @@ import subprocess
 import os
 import sys
 import datetime
-import time 
-import random
+import time
 from configparser import ConfigParser
 from datetime import datetime
+
 
 def check_exist(cmd, thing):
     try:
@@ -14,22 +14,25 @@ def check_exist(cmd, thing):
         print("Error: did not find %s in path." % thing)
         sys.exit(0)
 
+
 def log_error(cmd, exec_output, exec_error):
-        with open(LOG_FILE, 'a') as f:
-                f.write('time: %s\ncmd: %s\noutput: %s\nexec error:%s\n' % (str(datetime.datetime.now()), cmd, exec_output, exec_error))
-                
+    with open(LOG_FILE, 'a') as f:
+        f.write('time: %s\ncmd: %s\noutput: %s\nexec error:%s\n' % (str(datetime.datetime.now()), cmd, exec_output, exec_error))
+
+
 def log_final(no_error, argv):
     log_output = os.path.join(SCRIPT_DIR, 'log_align_analyze_sort.txt')
     with open(log_output, 'a') as f:
         f.write('%s %s %s %s\n' % (no_error, argv[0], argv[1], str(datetime.datetime.now())))
 
+
 if len(sys.argv) != 3:
-    print('Usage: python', sys.argv[0], 'config_file.txt','read_file.txt')
+    print('Usage: python', sys.argv[0], 'config_file.txt', 'read_file.txt')
     sys.exit(0)
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # read defaults file
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 config = ConfigParser()
 config.readfp(open('defaults.ini'))
 default_dist = config.get('defaults', 'DIST')
@@ -38,23 +41,24 @@ default_percentage_threshold = config.get('defaults', 'percentage_threshold')
 default_alignment_quality = config.get('defaults', 'alignment_quality')
 default_chloroplast = config.get('defaults', 'chloroplast')
 default_mitochondria = config.get('defaults', 'mitochondria')
+default_nuclear = config.get('defaults', 'nuclear')
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # read version
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 with open('VERSION', 'r') as f:
     line = f.readline()
     version = line.strip()
 
 # get output_day for all output files
-output_day = str(datetime.now()).split(" ")[0].replace(",","")
+output_day = str(datetime.now()).split(" ")[0].replace(",", "")
 
 # make info for output filename
-output_info = "_v"+version + "_" + output_day
+output_info = "_v" + version + "_" + output_day
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 # read config file
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 config.readfp(open(sys.argv[1]))
 ref = config.get('config', 'REF')
 READS_DIR = config.get('config', 'READS_DIR')
@@ -76,6 +80,11 @@ try:
     mitochondria = config.get('config', 'mitochondria')
 except:
     mitochondria = default_mitochondria
+
+try:
+    nuclear = config.get('config', 'nuclear')
+except:
+    nuclear = default_nuclear
 
 if chloroplast == 'None' and mitochondria == 'None':
     print('No sequence ID input for chloroplast or mitochondrial genome.')
@@ -107,7 +116,7 @@ check_exist('ls', mt_ref)
 check_exist('ls', cp_annotation)
 check_exist('ls', mt_annotation)
 
-#--------------------------------------------------------------
+# --------------------------------------------------------------
 
 with open(sys.argv[2], 'r') as f:
     reads = f.readlines()
@@ -131,7 +140,7 @@ else:
     else:
         ans = input("Remove all existing files in "+OUTPUT_DIR+"? (Y to remove, N to re-use these files)")
         if ans in ['y','Y','Yes','yes']:
-            cmd = 'rm -rf '+OUTPUT_DIR
+            cmd = 'rm -rf ' + OUTPUT_DIR
             try:
                 output = subprocess.check_call(cmd, shell=True)
             except:
@@ -140,7 +149,7 @@ else:
             os.makedirs(OUTPUT_DIR)
             print("\nOverwrite OUTPUT_DIR.")
         if ans in ['n','N','No','no']:
-            print("The workflow will re-use the existing files in "+OUTPUT_DIR+".")
+            print("The workflow will re-use the existing files in " + OUTPUT_DIR + ".")
 
 start_time = time.time()
 ###########################################################
@@ -215,13 +224,12 @@ for line in reads:
         # output.wait()
     except:
         no_error = False
-        log_error(cmd, output, sys.exc_info())            
+        log_error(cmd, output, sys.exc_info())
 
     filter_time = time.time()
-    print("Filter time for ", line.strip(), ": ", filter_time-alignment_time)
+    print("Filter time for ", line.strip(), ": ", filter_time - alignment_time)
 
-
-    print ("Finished %s. " %(line))
+    print("Finished %s. " % (line))
 
 
 script = "run_local"
@@ -232,14 +240,14 @@ random_id = "0"
 if chloroplast != 'None':
     partial_workflow = os.path.join(SCRIPT_DIR, 'run_hpc_het.py')
     check_exist('ls', partial_workflow)
-    cp_out = os.path.join(OUTPUT_DIR,'chloroplast')
+    cp_out = os.path.join(OUTPUT_DIR, 'chloroplast')
 
     # make temp parameters file
-    param_file = os.join.path(OUTPUT_DIR, "temp_params.txt")
-    params = [cp_ref, cp_annotation, dist, sys.argv[2], 'chloroplast'+output_info+'.html', str(random_id), READS_DIR, cp_out, LOG_FILE, alignment_quality, score_threshold, percentage_threshold, script, str(cutoff)]
-    f = open(param_file,'w')
+    param_file = os.join.path(OUTPUT_DIR, "cp_temp_params.txt")
+    params = [cp_ref, cp_annotation, dist, sys.argv[2], 'chloroplast' + output_info + '.html', str(random_id), READS_DIR, cp_out, LOG_FILE, alignment_quality, score_threshold, percentage_threshold, script, str(cutoff)]
+    f = open(param_file, 'w')
     for item in params:
-        f.write(item+'\n')
+        f.write(item + '\n')
     f.close()
 
     # cmd = 'python run_hpc_het.py %s' %(" ".join(params))
@@ -259,14 +267,14 @@ if mitochondria != 'None':
     partial_workflow = os.path.join(SCRIPT_DIR, 'run_hpc_het.py')
     check_exist('ls', partial_workflow)
     mt_out = os.path.join(OUTPUT_DIR,'mitochondria')
-    params = [mt_ref, mt_annotation, dist, sys.argv[2], 'mitochondria'+output_info+'.html', str(random_id), READS_DIR, mt_out, LOG_FILE, alignment_quality, score_threshold, percentage_threshold, script, cutoff]
-    
+    params = [mt_ref, mt_annotation, dist, sys.argv[2], 'mitochondria' + output_info + '.html', str(random_id), READS_DIR, mt_out, LOG_FILE, alignment_quality, score_threshold, percentage_threshold, script, cutoff]
+
     # make temp parameters file
-    param_file = os.join.path(OUTPUT_DIR, "temp_params.txt")
-    params = [cp_ref, cp_annotation, dist, sys.argv[2], 'chloroplast'+output_info+'.html', str(random_id), READS_DIR, cp_out, LOG_FILE, alignment_quality, score_threshold, percentage_threshold, script, str(cutoff)]
-    f = open(param_file,'w')
+    param_file = os.join.path(OUTPUT_DIR, "mt_temp_params.txt")
+    params = [mt_ref, mt_annotation, dist, sys.argv[2], 'mitochondria' + output_info + '.html', str(random_id), READS_DIR, mt_out, LOG_FILE, alignment_quality, score_threshold, percentage_threshold, script, str(cutoff)]
+    f = open(param_file, 'w')
     for item in params:
-        f.write(item+'\n')
+        f.write(item + '\n')
     f.close()
 
     # cmd = 'python run_hpc_het.py %s' %(" ".join(params))
@@ -278,4 +286,3 @@ if mitochondria != 'None':
         log_error(cmd, output, sys.exc_info())
 else:
     print("No sequence ID input for mitochondrial genome.")
-
